@@ -16,8 +16,9 @@ dependencies:
   url_launcher: ^6.1.10
   shared_preferences: ^2.0.12
   material_design_icons_flutter: 7.0.7296
-  charts_flutter_new: ^0.12.0
+  community_charts_flutter: ^1.0.4
   dynamic_color: ^1.6.9
+  device_info_plus: ^10.1.1
 
   flutter:
     sdk: flutter
