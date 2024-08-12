@@ -1,0 +1,108 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="fill"
+    android:padding="@dimen/card_margin"
+    tools:context=".LiveCardService">
+
+    <TextView
+        android:id="@+id/data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="1\n2\n3\n4\n5\n6\n7\n8"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+    <!--android:visibility="visible"-->
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="24sp"
+        android:layout_height="24sp"
+        android:visibility="visible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/netspeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NetworkSpeed"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_above="@+id/ping"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/ping"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ping"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_above="@+id/cpuUtilPercent"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temp"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_alignBaseline="@+id/cpuUtilPercent"
+        android:layout_alignBottom="@+id/cpuUtilPercent"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/cpuUtilPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CPU%"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/memUtilDatal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MemUtil/MemTotal"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_below="@+id/cpuUtilPercent"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/uptime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Uptime"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:visibility="visible"
+        android:layout_below="@+id/memUtilDatal"
+        android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false"
+        android:src="@mipmap/ic_fg"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+
+    <!--android:visibility="visible"-->
+
+
+</RelativeLayout>
