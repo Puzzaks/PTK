@@ -231,6 +231,10 @@ class _TelemetryCardState extends State<TelemetryCard> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual, overlays: [
+      SystemUiOverlay.top
+    ]);
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -336,714 +340,235 @@ class _TelemetryCardState extends State<TelemetryCard> {
               double scaffoldHeight = constraints.maxHeight;
               double scaffoldWidth = constraints.maxWidth;
               if(scaffoldWidth > scaffoldHeight){
-                return SafeArea(child: !receieving
+                return !receieving
                     ? Container(
                   width: scaffoldWidth,
                   height: scaffoldHeight,
-                  child: Card(
-                    surfaceTintColor: Theme.of(context).colorScheme.error,
-                    child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              "Disconnected!",
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'Comfortaa',
-                                  color:
-                                  Theme.of(context).colorScheme.error,
-                                  fontWeight: FontWeight.bold,
-                                  fontFeatures: [
-                                    FontFeature.proportionalFigures(),
-                                  ]),
-                            ),
-                            Text(
-                              "Looks like we are not getting data from the server. It could mean that you have no network connection, remote is down or AIO script is not properly set up. Either way, check settings please.",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Comfortaa',
-                                  fontFeatures: [
-                                    FontFeature.proportionalFigures(),
-                                  ]),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                FilledButton(
-                                    onPressed: () {
-                                      showModalBottomSheet<void>(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        enableDrag: true,
-                                        useSafeArea: true,
-                                        builder: (BuildContext context) {
-                                          return mainSettings();
-                                        },
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Settings',
-                                      style: const TextStyle(
-                                          fontFamily: 'Comfortaa',
-                                          fontWeight: FontWeight.bold,
-                                          fontFeatures: [
-                                            FontFeature
-                                                .proportionalFigures(),
-                                          ]),
+                            Container(
+                              width: scaffoldWidth/2,
+                              child: Card(
+                                surfaceTintColor: Theme.of(context).colorScheme.error,
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Disconnected!",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontFamily: 'Comfortaa',
+                                              color:
+                                              Theme.of(context).colorScheme.error,
+                                              fontWeight: FontWeight.bold,
+                                              fontFeatures: [
+                                                FontFeature.proportionalFigures(),
+                                              ]),
+                                        ),
+                                        Text(
+                                          "Looks like we are not getting data from the server. It could mean that you have no network connection, remote is down or AIO script is not properly set up. Either way, check settings please.",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'Comfortaa',
+                                              fontFeatures: [
+                                                FontFeature.proportionalFigures(),
+                                              ]),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            FilledButton(
+                                                onPressed: () {
+                                                  showModalBottomSheet<void>(
+                                                    context: context,
+                                                    isScrollControlled: true,
+                                                    enableDrag: true,
+                                                    useSafeArea: true,
+                                                    builder: (BuildContext context) {
+                                                      return mainSettings();
+                                                    },
+                                                  );
+                                                },
+                                                child: const Text(
+                                                  'Settings',
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Comfortaa',
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFeatures: [
+                                                        FontFeature
+                                                            .proportionalFigures(),
+                                                      ]),
+                                                )),
+                                          ],
+                                        )
+                                      ],
                                     )),
-                              ],
+                              ),
                             )
                           ],
-                        )),
+                        )
+                      ],
                   ),
                 )
-                    : Row(
+                    : Column(
                   children: [
-                    Container(
-                      width: scaffoldWidth / 2,
-                      height: scaffoldHeight,
-                      child: Column(
-                        children: [
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 32,
-                                      ),
-                                      const Icon(
-                                        Icons.restart_alt_rounded,
-                                        size: 24,
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      const Text(
-                                        "Server booted on:",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.5,
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      )
-                                    ],
+                    SizedBox(height: 30,),
+                    Row(
+                      children: [
+                        Container(
+                          width: scaffoldWidth / 2,
+                          height: scaffoldHeight-30,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
                                   ),
-                                  Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 10, right: 10, bottom: 10),
-                                      child: Text(
-                                        formattedUptime,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: 'Comfortaa',
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ))
-                                ],
-                              ),
-                            ),
-                          ), //uptime
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Stack(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _ping == null
-                                      ? const Center(
-                                      child: LinearProgressIndicator(
-                                        color: Colors.teal,
-                                        backgroundColor: Colors.transparent,
-                                      ))
-                                      : Material(
-                                    color: Colors.transparent,
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0))),
-                                    child: Container(
-                                      transform:
-                                      Matrix4.diagonal3Values(1.115, 1.45, 1.0)
-                                        ..translate(-20.0, -17),
-                                      height: 120,
-                                      child: charts.TimeSeriesChart(
-                                        _ping!,
-                                        animate: false,
-                                        animationDuration:
-                                        const Duration(milliseconds: 1000),
-                                        defaultRenderer: charts.LineRendererConfig(
-                                          includeArea: true,
-                                          areaOpacity: 0.5,
-                                          includePoints: true,
-                                          radiusPx: 1.0,
-                                          roundEndCaps: true,
-                                          strokeWidthPx: 2.0,
-                                        ),
-                                        primaryMeasureAxis:
-                                        const charts.NumericAxisSpec(
-                                          renderSpec: charts.GridlineRendererSpec(
-                                            labelStyle: charts.TextStyleSpec(
-                                                fontSize: 0,
-                                                color: charts
-                                                    .MaterialPalette.transparent),
-                                            lineStyle: charts.LineStyleSpec(
-                                              color:
-                                              charts.MaterialPalette.transparent,
-                                              thickness: 0,
-                                            ),
-                                          ),
-                                          tickProviderSpec:
-                                          charts.StaticNumericTickProviderSpec(
-                                            <charts.TickSpec<num>>[
-                                              charts.TickSpec<num>(0),
-                                              charts.TickSpec<num>(1000),
-                                            ],
-                                          ),
-                                        ),
-                                        domainAxis: const charts.DateTimeAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickFormatterSpec:
-                                            charts.AutoDateTimeTickFormatterSpec(
-                                                day: charts.TimeFormatterSpec(
-                                                    format: 'HH:mm',
-                                                    transitionFormat: 'HH:mm'))),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 48,
-                                      ),
-                                      const Icon(Icons.timer_outlined),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      const Text(
-                                        'Ping: ',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontWeight: FontWeight.bold,
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                      Text(
-                                        '${ping.inMilliseconds}ms',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ), //ping
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Stack(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _temperatureData == null
-                                      ? const Center(
-                                      child: LinearProgressIndicator(
-                                        color: Colors.teal,
-                                        backgroundColor: Colors.transparent,
-                                      ))
-                                      : Material(
-                                    color: Colors.transparent,
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0))),
-                                    child: Container(
-                                      transform:
-                                      Matrix4.diagonal3Values(1.115, 1.5, 1.0)
-                                        ..translate(-20.0, -20.0),
-                                      height: 120,
-                                      child: charts.TimeSeriesChart(
-                                        _temperatureData!,
-                                        animate: false,
-                                        animationDuration:
-                                        const Duration(milliseconds: 1000),
-                                        defaultRenderer: charts.LineRendererConfig(
-                                          includeArea: true,
-                                          areaOpacity: 0.5,
-                                          includePoints: true,
-                                          radiusPx: 1.0,
-                                          roundEndCaps: true,
-                                          strokeWidthPx: 2.0,
-                                        ),
-                                        primaryMeasureAxis:
-                                        const charts.NumericAxisSpec(
-                                          renderSpec: charts.GridlineRendererSpec(
-                                            labelStyle: charts.TextStyleSpec(
-                                                fontSize: 0,
-                                                color: charts
-                                                    .MaterialPalette.transparent),
-                                            lineStyle: charts.LineStyleSpec(
-                                              color:
-                                              charts.MaterialPalette.transparent,
-                                              thickness: 0,
-                                            ),
-                                          ),
-                                          tickProviderSpec:
-                                          charts.StaticNumericTickProviderSpec(
-                                            <charts.TickSpec<num>>[
-                                              charts.TickSpec<num>(0),
-                                              charts.TickSpec<num>(85),
-                                            ],
-                                          ),
-                                        ),
-                                        domainAxis: const charts.DateTimeAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickFormatterSpec:
-                                            charts.AutoDateTimeTickFormatterSpec(
-                                                day: charts.TimeFormatterSpec(
-                                                    format: 'HH:mm',
-                                                    transitionFormat: 'HH:mm'))),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 48,
-                                      ),
-                                      const Icon(Icons.thermostat_outlined),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      const Text(
-                                        'SoC Temp: ',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontWeight: FontWeight.bold,
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                      Text(
-                                        '${temp.toStringAsFixed(2)}°C',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ), //temp
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: scaffoldWidth / 2,
-                      height: scaffoldHeight,
-                      child: Column(
-                        children: [
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Stack(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _cpuData == null
-                                      ? const Center(
-                                      child: LinearProgressIndicator(
-                                        color: Colors.teal,
-                                        backgroundColor: Colors.transparent,
-                                      ))
-                                      : Material(
-                                    color: Colors.transparent,
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0))),
-                                    child: Container(
-                                      transform:
-                                      Matrix4.diagonal3Values(1.115, 1.5, 1.0)
-                                        ..translate(-20.0, -20.0),
-                                      height: 120,
-                                      child: charts.TimeSeriesChart(
-                                        _cpuData!,
-                                        animate: false,
-                                        animationDuration:
-                                        const Duration(milliseconds: 1000),
-                                        defaultRenderer: charts.LineRendererConfig(
-                                          includeArea: true,
-                                          areaOpacity: 0.5,
-                                          includePoints: true,
-                                          radiusPx: 1.0,
-                                          roundEndCaps: true,
-                                          strokeWidthPx: 2.0,
-                                        ),
-                                        primaryMeasureAxis:
-                                        const charts.NumericAxisSpec(
-                                          renderSpec: charts.GridlineRendererSpec(
-                                            labelStyle: charts.TextStyleSpec(
-                                                fontSize: 0,
-                                                color: charts
-                                                    .MaterialPalette.transparent),
-                                            lineStyle: charts.LineStyleSpec(
-                                              color:
-                                              charts.MaterialPalette.transparent,
-                                              thickness: 0,
-                                            ),
-                                          ),
-                                          tickProviderSpec:
-                                          charts.StaticNumericTickProviderSpec(
-                                            <charts.TickSpec<num>>[
-                                              charts.TickSpec<num>(0),
-                                              charts.TickSpec<num>(100),
-                                            ],
-                                          ),
-                                        ),
-                                        domainAxis: const charts.DateTimeAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickFormatterSpec:
-                                            charts.AutoDateTimeTickFormatterSpec(
-                                                day: charts.TimeFormatterSpec(
-                                                    format: 'HH:mm',
-                                                    transitionFormat: 'HH:mm'))),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 48,
-                                      ),
-                                      const Icon(Icons.developer_board),
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 48,
-                                      ),
-                                      const Text(
-                                        'SoC Load: ',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Comfortaa',
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                      Text(
-                                        '${cpuload.toStringAsFixed(2)}%',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Comfortaa',
-                                            fontFeatures: [
-                                              FontFeature.proportionalFigures(),
-                                            ]),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ), //load
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Stack(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _memData == null
-                                      ? const Center(
-                                      child: LinearProgressIndicator(
-                                        color: Colors.teal,
-                                        backgroundColor: Colors.transparent,
-                                      ))
-                                      : Material(
-                                    color: Colors.transparent,
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0))),
-                                    child: Container(
-                                      transform:
-                                      Matrix4.diagonal3Values(1.115, 1.5, 1.0)
-                                        ..translate(-20.0, -20.0),
-                                      height: 120,
-                                      child: charts.TimeSeriesChart(
-                                        _memData!,
-                                        animate: false,
-                                        animationDuration:
-                                        const Duration(milliseconds: 1000),
-                                        defaultRenderer: charts.LineRendererConfig(
-                                          includeArea: true,
-                                          areaOpacity: 0.5,
-                                          includePoints: true,
-                                          radiusPx: 1.0,
-                                          roundEndCaps: true,
-                                          strokeWidthPx: 2.0,
-                                        ),
-                                        primaryMeasureAxis: charts.NumericAxisSpec(
-                                          renderSpec:
-                                          const charts.GridlineRendererSpec(
-                                            labelStyle: charts.TextStyleSpec(
-                                                fontSize: 0,
-                                                color: charts
-                                                    .MaterialPalette.transparent),
-                                            lineStyle: charts.LineStyleSpec(
-                                              color:
-                                              charts.MaterialPalette.transparent,
-                                              thickness: 0,
-                                            ),
-                                          ),
-                                          tickProviderSpec:
-                                          charts.StaticNumericTickProviderSpec(
-                                            <charts.TickSpec<num>>[
-                                              const charts.TickSpec<num>(0),
-                                              charts.TickSpec<num>(ramSize),
-                                            ],
-                                          ),
-                                        ),
-                                        domainAxis: const charts.DateTimeAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickFormatterSpec:
-                                            charts.AutoDateTimeTickFormatterSpec(
-                                                day: charts.TimeFormatterSpec(
-                                                    format: 'HH:mm',
-                                                    transitionFormat: 'HH:mm'))),
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(
-                                        width: 10,
-                                        height: 12,
-                                      ),
+                                  elevation: 5,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
                                       Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           const SizedBox(
-                                            width: 10,
-                                            height: 18,
+                                            width: 5,
+                                            height: 32,
                                           ),
                                           const Icon(
-                                            Icons.memory,
+                                            Icons.restart_alt_rounded,
                                             size: 24,
                                           ),
                                           const SizedBox(
                                             width: 5,
-                                            height: 18,
                                           ),
                                           const Text(
-                                            'Used RAM: ',
+                                            "Server booted on:",
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontFamily: 'Comfortaa',
                                                 fontWeight: FontWeight.bold,
-                                                fontFeatures: [
-                                                  FontFeature.proportionalFigures(),
-                                                ]),
-                                          ),
-                                          Text(
-                                            '${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)',
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontFamily: 'Comfortaa',
+                                                height: 1.5,
                                                 fontFeatures: [
                                                   FontFeature.proportionalFigures(),
                                                 ]),
                                           )
                                         ],
                                       ),
+                                      Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 10, bottom: 10),
+                                          child: Text(
+                                            formattedUptime,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontFamily: 'Comfortaa',
+                                                fontFeatures: [
+                                                  FontFeature.proportionalFigures(),
+                                                ]),
+                                          ))
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ), //ram
-                          Container(
-                            height: scaffoldHeight/3 - 10,
-                            child: Card(
-                              elevation: 5,
-                              child: Stack(
-                                // crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _netStat == null
-                                      ? const Center(
-                                      child: LinearProgressIndicator(
-                                        color: Colors.teal,
-                                        backgroundColor: Colors.transparent,
-                                      ))
-                                      : Material(
-                                    color: Colors.transparent,
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0))),
-                                    child: Container(
-                                      transform:
-                                      Matrix4.diagonal3Values(1.115, 1.5, 1.0)
-                                        ..translate(-20.0, -20.0),
-                                      height: 120,
-                                      child: charts.TimeSeriesChart(
-                                        _netStat!,
-                                        animate: false,
-                                        animationDuration:
-                                        const Duration(milliseconds: 1000),
-                                        defaultRenderer: charts.LineRendererConfig(
-                                          includeArea: true,
-                                          areaOpacity: 0.5,
-                                          includePoints: true,
-                                          radiusPx: 1.0,
-                                          roundEndCaps: true,
-                                          strokeWidthPx: 2.0,
-                                        ),
-                                        primaryMeasureAxis: const charts
-                                            .NumericAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              labelStyle: charts.TextStyleSpec(
-                                                  fontSize: 0,
-                                                  color: charts
-                                                      .MaterialPalette.transparent),
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickProviderSpec:
-                                            charts.BasicNumericTickProviderSpec(
-                                                zeroBound: false)),
-                                        domainAxis: const charts.DateTimeAxisSpec(
-                                            renderSpec: charts.GridlineRendererSpec(
-                                              lineStyle: charts.LineStyleSpec(
-                                                color: charts
-                                                    .MaterialPalette.transparent,
-                                                thickness: 0,
-                                              ),
-                                            ),
-                                            tickFormatterSpec:
-                                            charts.AutoDateTimeTickFormatterSpec(
-                                                day: charts.TimeFormatterSpec(
-                                                    format: 'HH:mm',
-                                                    transitionFormat: 'HH:mm'))),
-                                      ),
-                                    ),
+                                ),
+                              ), //uptime
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(
-                                        width: 5,
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 10,
-                                            height: 18,
-                                          ),
-                                          const Icon(
-                                            Icons.arrow_drop_up_outlined,
-                                            size: 24,
-                                            color: Colors.red,
-                                          ),
-                                          const SizedBox(
-                                            width: 5,
-                                            height: 18,
-                                          ),
-                                          const Text(
-                                            'Outbound: ',
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontFamily: 'Comfortaa',
-                                                fontWeight: FontWeight.bold,
-                                                fontFeatures: [
-                                                  FontFeature.proportionalFigures(),
-                                                ]),
-                                          ),
-                                          Text(
-                                            formatNetworkSpeed(netOut),
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontFamily: 'Comfortaa',
-                                                fontFeatures: [
-                                                  FontFeature.proportionalFigures(),
-                                                ]),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 10,
-                                            height: 18,
-                                          ),
-                                          const Icon(
-                                            Icons.arrow_drop_down_outlined,
-                                            size: 24,
+                                  elevation: 5,
+                                  child: Stack(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      _ping == null
+                                          ? const Center(
+                                          child: LinearProgressIndicator(
                                             color: Colors.teal,
+                                            backgroundColor: Colors.transparent,
+                                          ))
+                                          : Material(
+                                        color: Colors.transparent,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(15.0))),
+                                        child: Container(
+                                          transform:
+                                          Matrix4.diagonal3Values(1.115, 1.45, 1.0)
+                                            ..translate(-20.0, -15),
+                                          height: 120,
+                                          child: charts.TimeSeriesChart(
+                                            _ping!,
+                                            animate: false,
+                                            animationDuration:
+                                            const Duration(milliseconds: 1000),
+                                            defaultRenderer: charts.LineRendererConfig(
+                                              includeArea: true,
+                                              areaOpacity: 0.5,
+                                              includePoints: true,
+                                              radiusPx: 1.0,
+                                              roundEndCaps: true,
+                                              strokeWidthPx: 2.0,
+                                            ),
+                                            primaryMeasureAxis:
+                                            const charts.NumericAxisSpec(
+                                              renderSpec: charts.GridlineRendererSpec(
+                                                labelStyle: charts.TextStyleSpec(
+                                                    fontSize: 0,
+                                                    color: charts
+                                                        .MaterialPalette.transparent),
+                                                lineStyle: charts.LineStyleSpec(
+                                                  color:
+                                                  charts.MaterialPalette.transparent,
+                                                  thickness: 0,
+                                                ),
+                                              ),
+                                              tickProviderSpec:
+                                              charts.StaticNumericTickProviderSpec(
+                                                <charts.TickSpec<num>>[
+                                                  charts.TickSpec<num>(0),
+                                                  charts.TickSpec<num>(1000),
+                                                ],
+                                              ),
+                                            ),
+                                            domainAxis: const charts.DateTimeAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickFormatterSpec:
+                                                charts.AutoDateTimeTickFormatterSpec(
+                                                    day: charts.TimeFormatterSpec(
+                                                        format: 'HH:mm',
+                                                        transitionFormat: 'HH:mm'))),
                                           ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
                                           const SizedBox(
                                             width: 5,
-                                            height: 18,
+                                            height: 48,
+                                          ),
+                                          const Icon(Icons.timer_outlined),
+                                          const SizedBox(
+                                            width: 5,
                                           ),
                                           const Text(
-                                            'Inbound: ',
+                                            'Ping: ',
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontFamily: 'Comfortaa',
@@ -1053,27 +578,541 @@ class _TelemetryCardState extends State<TelemetryCard> {
                                                 ]),
                                           ),
                                           Text(
-                                            formatNetworkSpeed(netIn),
+                                            '${ping.inMilliseconds}ms',
                                             style: const TextStyle(
                                                 fontSize: 18,
                                                 fontFamily: 'Comfortaa',
                                                 fontFeatures: [
                                                   FontFeature.proportionalFigures(),
                                                 ]),
-                                          )
+                                          ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ), //net
-                        ],
-                      ),
+                                ),
+                              ), //ping
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
+                                  ),
+                                  elevation: 5,
+                                  child: Stack(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      _temperatureData == null
+                                          ? const Center(
+                                          child: LinearProgressIndicator(
+                                            color: Colors.teal,
+                                            backgroundColor: Colors.transparent,
+                                          ))
+                                          : Material(
+                                        color: Colors.transparent,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(15.0))),
+                                        child: Container(
+                                          transform:
+                                          Matrix4.diagonal3Values(1.115, 1.5, 1.0)
+                                            ..translate(-20.0, -18.0),
+                                          height: 120,
+                                          child: charts.TimeSeriesChart(
+                                            _temperatureData!,
+                                            animate: false,
+                                            animationDuration:
+                                            const Duration(milliseconds: 1000),
+                                            defaultRenderer: charts.LineRendererConfig(
+                                              includeArea: true,
+                                              areaOpacity: 0.5,
+                                              includePoints: true,
+                                              radiusPx: 1.0,
+                                              roundEndCaps: true,
+                                              strokeWidthPx: 2.0,
+                                            ),
+                                            primaryMeasureAxis:
+                                            const charts.NumericAxisSpec(
+                                              renderSpec: charts.GridlineRendererSpec(
+                                                labelStyle: charts.TextStyleSpec(
+                                                    fontSize: 0,
+                                                    color: charts
+                                                        .MaterialPalette.transparent),
+                                                lineStyle: charts.LineStyleSpec(
+                                                  color:
+                                                  charts.MaterialPalette.transparent,
+                                                  thickness: 0,
+                                                ),
+                                              ),
+                                              tickProviderSpec:
+                                              charts.StaticNumericTickProviderSpec(
+                                                <charts.TickSpec<num>>[
+                                                  charts.TickSpec<num>(0),
+                                                  charts.TickSpec<num>(85),
+                                                ],
+                                              ),
+                                            ),
+                                            domainAxis: const charts.DateTimeAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickFormatterSpec:
+                                                charts.AutoDateTimeTickFormatterSpec(
+                                                    day: charts.TimeFormatterSpec(
+                                                        format: 'HH:mm',
+                                                        transitionFormat: 'HH:mm'))),
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 5,
+                                            height: 48,
+                                          ),
+                                          const Icon(Icons.thermostat_outlined),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          const Text(
+                                            'SoC Temp: ',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: 'Comfortaa',
+                                                fontWeight: FontWeight.bold,
+                                                fontFeatures: [
+                                                  FontFeature.proportionalFigures(),
+                                                ]),
+                                          ),
+                                          Text(
+                                            '${temp.toStringAsFixed(2)}°C',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: 'Comfortaa',
+                                                fontFeatures: [
+                                                  FontFeature.proportionalFigures(),
+                                                ]),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ), //temp
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: scaffoldWidth / 2,
+                          height: scaffoldHeight - 30,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
+                                  ),
+                                  elevation: 5,
+                                  child: Stack(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      _cpuData == null
+                                          ? const Center(
+                                          child: LinearProgressIndicator(
+                                            color: Colors.teal,
+                                            backgroundColor: Colors.transparent,
+                                          ))
+                                          : Material(
+                                        color: Colors.transparent,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(15.0))),
+                                        child: Container(
+                                          transform:
+                                          Matrix4.diagonal3Values(1.115, 1.5, 1.0)
+                                            ..translate(-20.0, -18.0),
+                                          height: 120,
+                                          child: charts.TimeSeriesChart(
+                                            _cpuData!,
+                                            animate: false,
+                                            animationDuration:
+                                            const Duration(milliseconds: 1000),
+                                            defaultRenderer: charts.LineRendererConfig(
+                                              includeArea: true,
+                                              areaOpacity: 0.5,
+                                              includePoints: true,
+                                              radiusPx: 1.0,
+                                              roundEndCaps: true,
+                                              strokeWidthPx: 2.0,
+                                            ),
+                                            primaryMeasureAxis:
+                                            const charts.NumericAxisSpec(
+                                              renderSpec: charts.GridlineRendererSpec(
+                                                labelStyle: charts.TextStyleSpec(
+                                                    fontSize: 0,
+                                                    color: charts
+                                                        .MaterialPalette.transparent),
+                                                lineStyle: charts.LineStyleSpec(
+                                                  color:
+                                                  charts.MaterialPalette.transparent,
+                                                  thickness: 0,
+                                                ),
+                                              ),
+                                              tickProviderSpec:
+                                              charts.StaticNumericTickProviderSpec(
+                                                <charts.TickSpec<num>>[
+                                                  charts.TickSpec<num>(0),
+                                                  charts.TickSpec<num>(100),
+                                                ],
+                                              ),
+                                            ),
+                                            domainAxis: const charts.DateTimeAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickFormatterSpec:
+                                                charts.AutoDateTimeTickFormatterSpec(
+                                                    day: charts.TimeFormatterSpec(
+                                                        format: 'HH:mm',
+                                                        transitionFormat: 'HH:mm'))),
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 5,
+                                            height: 48,
+                                          ),
+                                          const Icon(Icons.developer_board),
+                                          const SizedBox(
+                                            width: 5,
+                                            height: 48,
+                                          ),
+                                          const Text(
+                                            'SoC Load: ',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Comfortaa',
+                                                fontFeatures: [
+                                                  FontFeature.proportionalFigures(),
+                                                ]),
+                                          ),
+                                          Text(
+                                            '${cpuload.toStringAsFixed(2)}%',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: 'Comfortaa',
+                                                fontFeatures: [
+                                                  FontFeature.proportionalFigures(),
+                                                ]),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ), //load
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
+                                  ),
+                                  elevation: 5,
+                                  child: Stack(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      _memData == null
+                                          ? const Center(
+                                          child: LinearProgressIndicator(
+                                            color: Colors.teal,
+                                            backgroundColor: Colors.transparent,
+                                          ))
+                                          : Material(
+                                        color: Colors.transparent,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(15.0))),
+                                        child: Container(
+                                          transform:
+                                          Matrix4.diagonal3Values(1.115, 1.5, 1.0)
+                                            ..translate(-20.0, -18.0),
+                                          height: 120,
+                                          child: charts.TimeSeriesChart(
+                                            _memData!,
+                                            animate: false,
+                                            animationDuration:
+                                            const Duration(milliseconds: 1000),
+                                            defaultRenderer: charts.LineRendererConfig(
+                                              includeArea: true,
+                                              areaOpacity: 0.5,
+                                              includePoints: true,
+                                              radiusPx: 1.0,
+                                              roundEndCaps: true,
+                                              strokeWidthPx: 2.0,
+                                            ),
+                                            primaryMeasureAxis: charts.NumericAxisSpec(
+                                              renderSpec:
+                                              const charts.GridlineRendererSpec(
+                                                labelStyle: charts.TextStyleSpec(
+                                                    fontSize: 0,
+                                                    color: charts
+                                                        .MaterialPalette.transparent),
+                                                lineStyle: charts.LineStyleSpec(
+                                                  color:
+                                                  charts.MaterialPalette.transparent,
+                                                  thickness: 0,
+                                                ),
+                                              ),
+                                              tickProviderSpec:
+                                              charts.StaticNumericTickProviderSpec(
+                                                <charts.TickSpec<num>>[
+                                                  const charts.TickSpec<num>(0),
+                                                  charts.TickSpec<num>(ramSize),
+                                                ],
+                                              ),
+                                            ),
+                                            domainAxis: const charts.DateTimeAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickFormatterSpec:
+                                                charts.AutoDateTimeTickFormatterSpec(
+                                                    day: charts.TimeFormatterSpec(
+                                                        format: 'HH:mm',
+                                                        transitionFormat: 'HH:mm'))),
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(
+                                            width: 10,
+                                            height: 12,
+                                          ),
+                                          Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 10,
+                                                height: 18,
+                                              ),
+                                              const Icon(
+                                                Icons.memory,
+                                                size: 24,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                                height: 18,
+                                              ),
+                                              const Text(
+                                                'Used RAM: ',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              ),
+                                              Text(
+                                                '${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)',
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ), //ram
+                              Container(
+                                height: scaffoldHeight/3 - 15,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(15))
+                                  ),
+                                  elevation: 5,
+                                  child: Stack(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      _netStat == null
+                                          ? const Center(
+                                          child: LinearProgressIndicator(
+                                            color: Colors.teal,
+                                            backgroundColor: Colors.transparent,
+                                          ))
+                                          : Material(
+                                        color: Colors.transparent,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(15.0))),
+                                        child: Container(
+                                          transform:
+                                          Matrix4.diagonal3Values(1.115, 1.5, 1.0)
+                                            ..translate(-20.0, -18.0),
+                                          height: 120,
+                                          child: charts.TimeSeriesChart(
+                                            _netStat!,
+                                            animate: false,
+                                            animationDuration:
+                                            const Duration(milliseconds: 1000),
+                                            defaultRenderer: charts.LineRendererConfig(
+                                              includeArea: true,
+                                              areaOpacity: 0.5,
+                                              includePoints: true,
+                                              radiusPx: 1.0,
+                                              roundEndCaps: true,
+                                              strokeWidthPx: 2.0,
+                                            ),
+                                            primaryMeasureAxis: const charts
+                                                .NumericAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  labelStyle: charts.TextStyleSpec(
+                                                      fontSize: 0,
+                                                      color: charts
+                                                          .MaterialPalette.transparent),
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickProviderSpec:
+                                                charts.BasicNumericTickProviderSpec(
+                                                    zeroBound: false)),
+                                            domainAxis: const charts.DateTimeAxisSpec(
+                                                renderSpec: charts.GridlineRendererSpec(
+                                                  lineStyle: charts.LineStyleSpec(
+                                                    color: charts
+                                                        .MaterialPalette.transparent,
+                                                    thickness: 0,
+                                                  ),
+                                                ),
+                                                tickFormatterSpec:
+                                                charts.AutoDateTimeTickFormatterSpec(
+                                                    day: charts.TimeFormatterSpec(
+                                                        format: 'HH:mm',
+                                                        transitionFormat: 'HH:mm'))),
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(
+                                            width: 5,
+                                            height: 10,
+                                          ),
+                                          Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 10,
+                                                height: 18,
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_drop_up_outlined,
+                                                size: 24,
+                                                color: Colors.red,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                                height: 18,
+                                              ),
+                                              const Text(
+                                                'Outbound: ',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              ),
+                                              Text(
+                                                formatNetworkSpeed(netOut),
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              )
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 10,
+                                                height: 18,
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_drop_down_outlined,
+                                                size: 24,
+                                                color: Colors.teal,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                                height: 18,
+                                              ),
+                                              const Text(
+                                                'Inbound: ',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              ),
+                                              Text(
+                                                formatNetworkSpeed(netIn),
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily: 'Comfortaa',
+                                                    fontFeatures: [
+                                                      FontFeature.proportionalFigures(),
+                                                    ]),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ), //net
+                            ],
+                          ),
+                        )
+                      ],
                     )
                   ],
-                )
                 );
               }else{
                 return ListView(
