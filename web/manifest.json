@@ -1,11 +1,11 @@
 {
-    "name": "ptk",
-    "short_name": "ptk",
+    "name": "ptkx",
+    "short_name": "ptkx",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Puzzak's ToolKit",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

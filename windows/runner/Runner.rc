@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "page.puzzak" "\0"
-            VALUE "FileDescription", "ptk" "\0"
+            VALUE "FileDescription", "ptkx" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ptk" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 page.puzzak. All rights reserved." "\0"
-            VALUE "OriginalFilename", "ptk.exe" "\0"
-            VALUE "ProductName", "ptk" "\0"
+            VALUE "InternalName", "ptkx" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 page.puzzak. All rights reserved." "\0"
+            VALUE "OriginalFilename", "ptkx.exe" "\0"
+            VALUE "ProductName", "ptkx" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
