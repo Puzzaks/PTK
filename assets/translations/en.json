@@ -1,0 +1,15 @@
+{
+  "app_name": "PTK",
+  "dashboard": "Dashboard",
+  "settings": "Settings",
+  "settings_app": "App Settings",
+  "select_language": "Language",
+  "select_language_auto_long": "Select the application language",
+  "about": "About the app",
+  "cpu_load": "CPU Load",
+  "temperature": "Temperature",
+  "ram_usage": "RAM Usage",
+  "network": "Network",
+  "ping": "Ping",
+  "uptime": "Uptime"
+}
