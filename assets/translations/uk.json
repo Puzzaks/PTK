@@ -13,8 +13,8 @@
   "ping": "Ping",
   "uptime": "Uptime",
 
-  "servers": "Servers",
-  "status_pages": "Status Pages",
+  "servers": "Сервери",
+  "status_pages": "Статуспейджи",
   "no_servers": "No servers",
   "no_servers_hint": "Tap below to add your first server",
   "add_server": "Add Server",
