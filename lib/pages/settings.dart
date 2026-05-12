@@ -1,29 +1,30 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:PTK/engine.dart';
 import 'package:PTK/pages/support/elements.dart';
 
-class SettingsPage extends StatefulWidget {
+import 'package:PTK/pages/settings_servers.dart';
+import 'package:PTK/pages/settings_statuspages.dart';
+
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  late TextEditingController _locController;
-
-  @override
-  void initState() {
-    super.initState();
-    final engine = Provider.of<AppEngine>(context, listen: false);
-    _locController = TextEditingController(text: engine.loc);
+  Future<void> _openNotificationSettings() async {
+    const platform = MethodChannel('page.puzzak.ptk/settings');
+    try {
+      await platform.invokeMethod('openNotificationSettings');
+    } catch (_) {
+      // Fallback: use Android intent via url_launcher or just ignore
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppEngine>(builder: (context, engine, child) {
-      Cards cards = engine.cards;
+    return Consumer<AppEngine>(builder: (context, engine, _) {
+      final cards = engine.cards;
 
       return Scaffold(
         body: CustomScrollView(
@@ -38,102 +39,38 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               pinned: true,
-              title: Text(engine.dict.value("settings")),
+              title: Text(engine.dict.value('settings')),
             ),
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Category.settings(title: "Connection", context: context),
-                  cards.cardGroup([
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: TextField(
-                        controller: _locController,
-                        decoration: InputDecoration(
-                          labelText: "API Endpoint URL",
-                          hintText: "https://api.puzzak.page/AIO.php",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.check_rounded),
-                            onPressed: () {
-                              engine.loc = _locController.text;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("API Endpoint saved")),
-                              );
-                            },
-                          ),
-                        ),
-                        onSubmitted: (v) => engine.loc = v,
-                      ),
-                    ),
-                    CardContents.tap(
-                      title: "Reset to Default",
-                      subtitle: "https://api.puzzak.page/AIO.php",
-                      action: () {
-                        _locController.text = "https://api.puzzak.page/AIO.php";
-                        engine.loc = _locController.text;
-                      },
-                    ),
-                  ]),
-
-                  Category.settings(title: "Updates", context: context),
-                  cards.cardGroup([
-                    CardContents.turn(
-                      title: "Auto Update",
-                      subtitle: "Automatically fetch new data from the server",
-                      value: engine.isAutoUpdate,
-                      action: () => engine.isAutoUpdate = !engine.isAutoUpdate,
-                      switcher: (v) => engine.isAutoUpdate = v,
-                    ),
-                    CardContents.addretract(
-                      title: "Update Interval",
-                      subtitle: "${engine.updateRate} seconds",
-                      actionAdd: () => engine.updateRate++,
-                      actionRetract: () {
-                        if (engine.updateRate > 1) engine.updateRate--;
-                      },
-                    ),
-                  ]),
-
-                  Category.settings(title: "Network", context: context),
-                  cards.cardGroup([
-                    CardContents.turn(
-                      title: "Use Bits",
-                      subtitle: "Display network speed in bits per second (b/s)",
-                      value: engine.useBits,
-                      action: () => engine.useBits = !engine.useBits,
-                      switcher: (v) => engine.useBits = v,
-                    ),
-                  ]),
-
-                  Category.settings(title: engine.dict.value("settings_app"), context: context),
+                  Category.settings(title: engine.dict.value('settings_app'), context: context),
                   cards.cardGroup([
                     CardContents.doubleTap(
-                      title:        engine.dict.value("select_language"),
-                      subtitle:     engine.dict.languages.firstWhere((e) => e["id"] == engine.dict.locale, orElse: () => {"name": "English"})["name"],
-                      icon:         Icons.language_rounded,
+                      title:       engine.dict.value('select_language'),
+                      subtitle:    engine.dict.languages.firstWhere(
+                              (e) => e['id'] == engine.dict.locale,
+                          orElse: () => {'name': 'English'})['name'],
+                      icon:        Icons.language_rounded,
                       action: () {
                         showDialog(
                           context: context,
-                          builder: (BuildContext dialogContext) => AlertDialog(
+                          builder: (dialogContext) => AlertDialog(
                             contentPadding: const EdgeInsets.only(top: 10, bottom: 15),
                             titlePadding:   const EdgeInsets.only(top: 20, right: 20, left: 20),
-                            title: Text(engine.dict.value("select_language")),
+                            title: Text(engine.dict.value('select_language')),
                             content: SingleChildScrollView(
                               child: cards.cardGroup(
                                 engine.dict.languages.map((language) {
                                   return CardContents.halfTap(
-                                    title:    language["origin"],
-                                    subtitle: language["name"] == language["origin"]
-                                        ? ""
-                                        : language["name"],
+                                    title:    language['origin'] ?? language['name'],
+                                    subtitle: language['name'] == language['origin'] ? '' : language['name'],
                                     action: () async {
-                                      await engine.dict.saveLanguage(language["id"]);
+                                      final nav = Navigator.of(dialogContext);
+                                      await engine.dict.saveLanguage(language['id']);
                                       engine.genericRefresh();
-                                      Navigator.of(dialogContext).pop();
+                                      nav.pop();
                                     },
                                   );
                                 }).toList().cast<Widget>(),
@@ -147,6 +84,101 @@ class _SettingsPageState extends State<SettingsPage> {
                         engine.genericRefresh();
                       },
                     ),
+                    CardContents.turn(
+                      title: engine.dict.value('default_tab'),
+                      subtitle: engine.defaultTab == 0
+                          ? engine.dict.value('default_tab_servers')
+                          : engine.dict.value('default_tab_statuspages'),
+                      value: engine.defaultTab == 1,
+                      action: () => engine.defaultTab = engine.defaultTab == 0 ? 1 : 0,
+                      switcher: (v) => engine.defaultTab = v ? 1 : 0,
+                    ),
+                  ]),
+                  // ── Configuration ──────────────────────────────
+                  Category.settings(title: engine.dict.value('settings'), context: context),
+                  cards.cardGroup([
+                    CardContents.tapIcon(
+                      title: engine.dict.value('settings_servers'),
+                      subtitle: engine.servers.length == 1
+                          ? '1 ${engine.dict.value('servers_configured')}'
+                          : '${engine.statusPages.length} ${engine.dict.value('servers_configured_plural')}',
+                      icon: Icons.dns_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      action: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsServersPage(),
+                          settings: const RouteSettings(name: 'SettingsServersPage'),
+                        ),
+                      ),
+                    ),
+                    CardContents.tapIcon(
+                      title: engine.dict.value('settings_statuspages'),
+                      subtitle: engine.statusPages.length == 1
+                        ? '1 ${engine.dict.value('statuspages_configured')}'
+                            : '${engine.statusPages.length} ${engine.dict.value('statuspages_configured_plural')}',
+                      icon: Icons.hub_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      action: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsStatuspagesPage(),
+                          settings: const RouteSettings(name: 'SettingsStatuspagesPage'),
+                        ),
+                      ),
+                    ),
+                  ]),
+
+                  // ── Background Monitoring ──────────────────────
+                  Category.settings(title: engine.dict.value('bg_monitoring'), context: context),
+                  cards.cardGroup([
+                    CardContents.turn(
+                      title: engine.dict.value('bg_monitoring'),
+                      subtitle: engine.bgMonitorEnabled
+                          ? engine.dict.value('bg_monitoring_active')
+                          : engine.dict.value('bg_monitoring_inactive'),
+                      value: engine.bgMonitorEnabled,
+                      action: () async {
+                        final newVal = !engine.bgMonitorEnabled;
+                        if (newVal) {
+                          // Request permissions before enabling
+                          final notifPerm = await FlutterForegroundTask.checkNotificationPermission();
+                          if (notifPerm != NotificationPermission.granted) {
+                            await FlutterForegroundTask.requestNotificationPermission();
+                          }
+                          if (Platform.isAndroid) {
+                            if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+                              await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+                            }
+                          }
+                        }
+                        await engine.setBgMonitorEnabled(newVal);
+                      },
+                      switcher: (v) async {
+                        if (v) {
+                          final notifPerm = await FlutterForegroundTask.checkNotificationPermission();
+                          if (notifPerm != NotificationPermission.granted) {
+                            await FlutterForegroundTask.requestNotificationPermission();
+                          }
+                          if (Platform.isAndroid) {
+                            if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+                              await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+                            }
+                          }
+                        }
+                        await engine.setBgMonitorEnabled(v);
+                      },
+                    ),
+                    if (engine.bgMonitorEnabled)
+                      CardContents.doubleTap(
+                        title: engine.dict.value('bg_notification_settings'),
+                        subtitle: '',
+                        icon: Icons.notifications_rounded,
+                        action: () => _openNotificationSettings(),
+                        secondAction: () => _openNotificationSettings(),
+                      ),
                   ]),
 
                   const SizedBox(height: 50),
@@ -159,3 +191,5 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 }
+
+

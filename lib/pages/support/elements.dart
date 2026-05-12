@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 
 class Cards {
@@ -211,7 +209,7 @@ class CardContents {
     required String subtitle,
     required VoidCallback action,
   }) {
-    double width = (WidgetsBinding.instance.platformDispatcher.views.first.physicalSize / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio).width;
+    double width = (WidgetsBinding.instance.platformDispatcher.views.first.physicalSize / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio).width -10;
     return InkWell(
       onTap: action,
       child: Padding(
@@ -610,7 +608,7 @@ class Category {
 
 
 
-class text {
+class TextPart {
   static Widget info({
     required String title,
     required String subtitle,

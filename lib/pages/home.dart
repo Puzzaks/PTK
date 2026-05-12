@@ -1,127 +1,105 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:PTK/engine.dart';
-import 'package:PTK/pages/support/elements.dart';
+import 'package:PTK/models/server_watcher.dart';
+import 'package:PTK/models/server_telemetry.dart';
+import 'package:PTK/pages/server_detail.dart';
+import 'package:PTK/pages/server_editor.dart';
+import 'package:PTK/pages/statuspage.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    final engine = Provider.of<AppEngine>(context, listen: false);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: engine.defaultTab,
+    );
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<AppEngine>(builder: (context, engine, child) {
-      final primaryColor = Theme.of(context).colorScheme.primary;
-      final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-
+    return Consumer<AppEngine>(builder: (context, engine, _) {
       return Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar.large(
-              surfaceTintColor: Colors.transparent,
-              pinned: true,
-              title: const Text("PTK Dashboard"),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.info_outline_rounded),
-                  onPressed: () {
-                    Navigator.pushNamed(context, 'AboutPage');
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings_rounded),
-                  onPressed: () {
-                    Navigator.pushNamed(context, 'SettingsPage');
-                  },
-                ),
-              ],
-            ),
-            if (engine.isDisconnected)
-              SliverToBoxAdapter(
-                child: engine.cards.cardGroup([
-                  CardContents.static(
-                    title: "Disconnected!",
-                    subtitle: "Please check your API settings or internet connection.",
-                  ),
-                ]),
+        appBar: AppBar(
+          surfaceTintColor: Colors.transparent,
+          title: Text(engine.dict.value('app_name')),
+          actions: [
+            if (_tabController.index == 1)
+              IconButton(
+                icon: const Icon(Icons.add_rounded),
+                tooltip: engine.dict.value('add_statuspage'),
+                onPressed: () => Navigator.pushNamed(context, 'StatusPageEditorPage'),
               ),
-            SliverToBoxAdapter(
-              child: _StatCard(
-                title: "Server Uptime",
-                value: engine.uptime,
-                icon: Icons.timer_outlined,
+            if (_tabController.index == 0)
+              IconButton(
+                icon: const Icon(Icons.add_rounded),
+                tooltip: engine.dict.value('add_server'),
+                onPressed: () => Navigator.pushNamed(context, 'ServerEditorPage'),
               ),
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () => Navigator.pushNamed(context, 'SettingsPage'),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isLandscape ? 2 : 1,
-                  mainAxisExtent: 140, // Uniform height for most cards
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                ),
-                delegate: SliverChildListDelegate([
-                  _OverlayTelemetryCard(
-                    title: "CPU Load",
-                    value: "${engine.cpuload.toStringAsFixed(1)}%",
-                    data: engine.loads,
-                    color: primaryColor,
-                    minY: 0,
-                    maxY: 100,
-                  ),
-                  _OverlayTelemetryCard(
-                    title: "SoC Temperature",
-                    value: "${engine.cpuTemp.toStringAsFixed(1)}°C",
-                    data: engine.temps,
-                    color: primaryColor,
-                    minY: 0,
-                    maxY: 100,
-                  ),
-                  _OverlayTelemetryCard(
-                    title: "RAM Usage",
-                    value: "${engine.formatBytes(engine.memused)} / ${engine.formatBytes(engine.memtotal)}",
-                    subValue: "${engine.memtotal > 0 ? ((engine.memused / engine.memtotal) * 100).toStringAsFixed(1) : 0}%",
-                    progress: engine.memtotal > 0 ? engine.memused / engine.memtotal : 0,
-                    data: engine.mems,
-                    color: primaryColor,
-                    minY: 0,
-                    maxY: engine.memtotal > 0 ? engine.memtotal : 100,
-                  ),
-                  _OverlayTelemetryCard(
-                    title: "Throughput (In)",
-                    value: engine.formatBytes(engine.netIn, isThroughput: true),
-                    data: engine.netIns,
-                    color: primaryColor,
-                  ),
-                  _OverlayTelemetryCard(
-                    title: "Throughput (Out)",
-                    value: engine.formatBytes(engine.netOut, isThroughput: true),
-                    data: engine.netOuts,
-                    color: primaryColor,
-                  ),
-                  _OverlayTelemetryCard(
-                    title: "Ping",
-                    value: "${engine.pings.isNotEmpty ? engine.pings.last.value.toStringAsFixed(0) : 0} ms",
-                    data: engine.pings,
-                    color: primaryColor,
-                  ),
-                ]),
-              ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(icon: _tabController.index == 1 ? const Icon(Icons.dns_outlined) : const Icon(Icons.dns_rounded), text: engine.dict.value('servers')),
+              Tab(icon: _tabController.index == 0 ?  const Icon(Icons.cloud_done_outlined) : const Icon(Icons.cloud_done_rounded),   text: engine.dict.value('status_pages')),
+            ],
+          ),
+        ),
+        body: Column(
+          children: [
+            // Offline banner
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              child: engine.isOnline
+                  ? const SizedBox.shrink()
+                  : MaterialBanner(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: Icon(Icons.wifi_off_rounded,
+                          color: Theme.of(context).colorScheme.onErrorContainer),
+                      backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                      content: Text(
+                        engine.dict.value('offline_banner'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      ),
+                      actions: const [SizedBox.shrink()],
+                    ),
             ),
-
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  text.info(
-                    title: "PTK is monitoring your server in real-time. Data is fetched from your configured AIO.php endpoint.",
-                    subtitle: "About this app",
-                    action: () {
-                      Navigator.pushNamed(context, 'AboutPage');
-                    },
-                    context: context,
-                  ),
-                  const SizedBox(height: 80),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: const [
+                  _ServerListTab(),
+                  StatuspagePage(),
                 ],
               ),
             ),
@@ -132,169 +110,313 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
+// ── Tab 1: Server list ─────────────────────────────────────
 
-  const _StatCard({required this.title, required this.value, required this.icon});
+class _ServerListTab extends StatelessWidget {
+  const _ServerListTab();
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+    return Consumer<AppEngine>(builder: (context, engine, _) {
+      final servers = engine.servers;
+
+      if (servers.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.dns_outlined,
+                size: 72,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                engine.dict.value('no_servers'),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  engine.dict.value('no_servers_hint'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              FilledButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ServerEditorPage(),
+                    settings: const RouteSettings(name: 'ServerEditorPage'),
+                  ),
+                ),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(engine.dict.value('add_server')),
+              ),
+              const SizedBox(height: 80),
+            ],
+          ),
+        );
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        itemCount: servers.length + 1,
+        itemBuilder: (context, index) {
+          if (index == servers.length) return const SizedBox(height: 80);
+          final server = servers[index];
+          return _ServerCard(key: ValueKey(server.id), server: server);
+        },
+      );
+    });
+  }
+}
+
+// ── Server card ───────────────────────────────────────────
+
+class _ServerCard extends StatefulWidget {
+  final ServerWatcher server;
+  const _ServerCard({super.key, required this.server});
+
+  @override
+  State<_ServerCard> createState() => _ServerCardState();
+}
+
+class _ServerCardState extends State<_ServerCard> {
+  bool _isVisible = false;
+
+  @override
+  void dispose() {
+    if (_isVisible) {
+      Provider.of<AppEngine>(context, listen: false)
+          .setServerVisible(widget.server.id, false);
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final engine    = Provider.of<AppEngine>(context);
+    final server    = engine.servers.firstWhere(
+      (s) => s.id == widget.server.id,
+      orElse: () => widget.server,
+    );
+    final telem     = engine.telemetryFor(server.id);
+    final color     = Theme.of(context).colorScheme.primary;
+    final scheme    = Theme.of(context).colorScheme;
+    final resolvedGraphStat = engine.resolveGraphStat(server);
+    final graphData = engine.graphData(resolvedGraphStat, telem);
+
+    return VisibilityDetector(
+      key: ValueKey('vis_${server.id}'),
+      onVisibilityChanged: (info) {
+        final nowVisible = info.visibleFraction > 0.1;
+        if (nowVisible != _isVisible) {
+          _isVisible = nowVisible;
+          engine.setServerVisible(server.id, nowVisible);
+        }
+      },
       child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Row(
-          children: [
-            Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Card(
+          clipBehavior: Clip.hardEdge,
+          child: InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ServerDetailPage(server: server),
+                settings: const RouteSettings(name: 'ServerDetailPage'),
+              ),
+            ),
+            child: SizedBox(
+              height: 160,
+              child: Stack(
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.labelLarge),
-                  Text(value, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  // ── Background graph — pointer-absorbing so card stays tappable ──
+                  Positioned.fill(
+                    child: AbsorbPointer(
+                      child: Opacity(
+                        opacity: 0.35,
+                        child: graphData.isEmpty
+                            ? const SizedBox.shrink()
+                            : _buildGraph(graphData, color, telem, server, engine),
+                      ),
+                    ),
+                  ),
+
+                  // ── Foreground content ────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name + status dot
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                server.name,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 600),
+                              width: 8, height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: telem.isDisconnected
+                                    ? scheme.error
+                                    : scheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const Spacer(),
+
+                        // Stat slots
+                        if (!server.isAio) ...[
+                          Text(
+                            '${telem.lastPing.toStringAsFixed(0)} ms',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: scheme.primary,
+                            ),
+                          ),
+                          Text(
+                            engine.dict.value('ping'),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              engine.dict.value('install_aio_hint'),
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            children: [
+                              if (engine.resolveTextStat1(server) != null)
+                                Expanded(child: _StatSlot(
+                                  label: engine.resolveTextStat1(server)!.label,
+                                  value: engine.statString(engine.resolveTextStat1(server)!, telem),
+                                )),
+                              if (engine.resolveTextStat1(server) != null && engine.resolveTextStat2(server) != null)
+                                const SizedBox(width: 12),
+                              if (engine.resolveTextStat2(server) != null)
+                                Expanded(child: _StatSlot(
+                                  label: engine.resolveTextStat2(server)!.label,
+                                  value: engine.statString(engine.resolveTextStat2(server)!, telem),
+                                )),
+                              // If both are null, show ping as fallback
+                              if (engine.resolveTextStat1(server) == null && engine.resolveTextStat2(server) == null)
+                                _StatSlot(
+                                  label: engine.dict.value('ping'),
+                                  value: '${telem.lastPing.toStringAsFixed(0)} ms',
+                                ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
 
-class _OverlayTelemetryCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String? subValue;
-  final double? progress;
-  final List<TelemetryData> data;
-  final Color color;
-  final double? minY;
-  final double? maxY;
+  Widget _buildGraph(
+    List<TelemetryData> data,
+    Color color,
+    ServerTelemetry telem,
+    ServerWatcher server,
+    AppEngine engine,
+  ) {
+    double maxY = data.isNotEmpty
+        ? data.map((e) => e.value).reduce(max)
+        : 10;
+    if (maxY == 0) maxY = 10;
 
-  const _OverlayTelemetryCard({
-    required this.title,
-    required this.value,
-    this.subValue,
-    this.progress,
-    required this.data,
-    required this.color,
-    this.minY,
-    this.maxY,
-  });
+    final resolvedGraphStat = engine.resolveGraphStat(server);
+    if (resolvedGraphStat == GraphStat.cpuLoad ||
+        resolvedGraphStat == GraphStat.cpuTemp ||
+        resolvedGraphStat == GraphStat.ramPct) {
+      maxY = 100;
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    double actualMaxY = maxY ?? (data.isNotEmpty ? data.map((e) => e.value).reduce((a, b) => a > b ? a : b) : 10);
-    if (actualMaxY == 0) actualMaxY = 10;
-    double buffer = actualMaxY * 0.08;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-      clipBehavior: Clip.hardEdge,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            top: 40,
-            child: Opacity(
-              opacity: 0.4,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 0),
-                child: LineChart(
-                  LineChartData(
-                    lineTouchData: LineTouchData(
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipColor: (spot) => color.withOpacity(0.8),
-                        getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                          return touchedBarSpots.map((barSpot) {
-                            final engine = Provider.of<AppEngine>(context, listen: false);
-                            String formattedValue = title.contains("Throughput") 
-                              ? engine.formatBytes(barSpot.y, isThroughput: true)
-                              : title.contains("RAM")
-                                ? engine.formatBytes(barSpot.y)
-                                : barSpot.y.toStringAsFixed(2);
-                            
-                            return LineTooltipItem(
-                              formattedValue,
-                              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                    gridData: const FlGridData(show: false),
-                    titlesData: const FlTitlesData(show: false),
-                    borderData: FlBorderData(show: false),
-                    minY: -buffer,
-                    maxY: actualMaxY,
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.value)).toList(),
-                        isCurved: true,
-                        color: color,
-                        barWidth: 2,
-                        isStrokeCapRound: true,
-                        dotData: const FlDotData(show: false),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: color.withOpacity(0.2),
-                        ),
-                      ),
-                    ],
-                  ),
-                  duration: Duration.zero,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(title, style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          )),
-                          Text(value, style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          )),
-                          if (subValue != null)
-                            Text(subValue!, style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            )),
-                        ],
-                      ),
-                    ),
-                    if (progress != null)
-                      SizedBox(
-                        width: 32,
-                        height: 32,
-                        child: CircularProgressIndicator(
-                          value: progress,
-                          backgroundColor: color.withOpacity(0.1),
-                          strokeCap: StrokeCap.round,
-                          strokeWidth: 4,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+    return LineChart(
+      LineChartData(
+        gridData:   const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
+        borderData: FlBorderData(show: false),
+        minY: -(maxY * 0.08),
+        maxY: maxY,
+        lineBarsData: [
+          LineChartBarData(
+            spots: data.asMap().entries
+                .map((e) => FlSpot(e.key.toDouble(), e.value.value))
+                .toList(),
+            isCurved: true,
+            color: color,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.25)),
           ),
         ],
       ),
+      duration: Duration.zero,
+    );
+  }
+}
+
+// ── Stat slot ─────────────────────────────────────────────
+
+class _StatSlot extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatSlot({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }

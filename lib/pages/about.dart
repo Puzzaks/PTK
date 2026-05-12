@@ -63,7 +63,7 @@ class AboutPage extends StatelessWidget {
                   ),
                 ]),
 
-                text.info(
+                TextPart.info(
                   title: "Designed and developed by Puzzak. All rights reserved.",
                   subtitle: "GitHub Repository",
                   action: () => launchUrl(Uri.parse("https://github.com/Puzzak/PTK")),

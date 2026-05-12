@@ -1,0 +1,11 @@
+{
+  "Authentication": "Auth.",
+  "Authentification": "Auth.",
+  "Management": "Mgmt.",
+  "Application": "App",
+  "Database": "DB",
+  "Service": "Svc",
+  "Development": "Dev",
+  "Production": "Prod",
+  "Infrastructure": "Infra"
+}
