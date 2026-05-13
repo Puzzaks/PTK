@@ -217,5 +217,6 @@
   "intro_demo_statuspage": "Demo Status Page (GitHub Status)",
   "intro_get_started": "Get Started",
   "intro_skip": "Skip",
-  "intro_next": "Next"
+  "intro_next": "Next",
+  "bg_per_entity_default": "Following settings"
 }
