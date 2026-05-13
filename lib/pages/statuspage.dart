@@ -1,7 +1,9 @@
+import 'package:PTK/pages/support/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:PTK/engine.dart';
 import 'package:PTK/models/status_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StatuspagePage extends StatelessWidget {
   const StatuspagePage({super.key});
@@ -46,7 +48,18 @@ class StatuspagePage extends StatelessWidget {
                 icon: const Icon(Icons.add_rounded),
                 label: Text(engine.dict.value('add_statuspage')),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 30),
+              TextPart.infoShort(
+                title: engine.dict.value('statuspage_desc'),
+                subtitle: engine.dict.value('statuspage_info'),
+                action: () async {
+                  await launchUrl(
+                    Uri.parse("https://status.atlassian.com/"),
+                    mode: LaunchMode.externalApplication
+                  );
+                },
+                context: context,
+              ),
             ],
           ),
         );

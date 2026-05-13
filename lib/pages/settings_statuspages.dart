@@ -34,7 +34,10 @@ class SettingsStatuspagesPage extends StatelessWidget {
                 children: [
                   Category.settings(title: engine.dict.value('statuspage_title'), context: context),
                   cards.cardGroup([
-                    CardContents.tap(
+                    CardContents.tapIcon(
+                      icon: Icons.hub_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       title: engine.dict.value('manage_statuspages'),
                       subtitle: engine.statusPages.length == 1
                           ? '1 ${engine.dict.value('statuspages_configured')}'

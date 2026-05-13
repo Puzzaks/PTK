@@ -181,6 +181,13 @@ class _StatusPageEditorPageState extends State<StatusPageEditorPage> {
                     tooltip: engine.dict.value('delete_statuspage'),
                     onPressed: _confirmDelete,
                   ),
+                IconButton(
+                  icon: Icon(Icons.save_rounded),
+                  tooltip: _isEditing
+                      ? engine.dict.value('save_changes')
+                      : engine.dict.value('add_statuspage'),
+                  onPressed: _detectedName != null ? _save : null,
+                ),
               ],
             ),
             SliverToBoxAdapter(
@@ -295,6 +302,29 @@ class _StatusPageEditorPageState extends State<StatusPageEditorPage> {
 
                   Category.settings(title: engine.dict.value('settings'), context: context),
                   engine.cards.cardGroup([
+                    if (engine.bgMonitorEnabled) ...[
+                      CardContents.turn(
+                        title: engine.dict.value('bg_per_entity_monitor'),
+                        subtitle: _bgMonitor == null
+                            ? '${engine.dict.value('bg_per_entity_default')} (${engine.bgMonitorDefault ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')})'
+                            : (_bgMonitor! ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')),
+                        value: _bgMonitor ?? true,
+                        action: () {
+                          setState(() {
+                            if (_bgMonitor == null) {
+                              _bgMonitor = false;
+                            } else if (_bgMonitor == false) {
+                              _bgMonitor = null;
+                            } else {
+                              _bgMonitor = false;
+                            }
+                          });
+                        },
+                        switcher: (val) {
+                          setState(() => _bgMonitor = val ? null : false);
+                        },
+                      ),
+                    ],
                     CardContents.turn(
                       title: engine.dict.value('override_defaults'),
                       subtitle: engine.dict.value('override_defaults_hint'),
@@ -320,32 +350,7 @@ class _StatusPageEditorPageState extends State<StatusPageEditorPage> {
                     ),
                   ]),
 
-                  if (engine.bgMonitorEnabled) ...[
-                    Category.settings(title: engine.dict.value('bg_per_entity_monitor'), context: context),
-                    engine.cards.cardGroup([
-                      CardContents.turn(
-                        title: engine.dict.value('bg_per_entity_monitor'),
-                        subtitle: _bgMonitor == null
-                            ? '${engine.dict.value('bg_per_entity_default')} (${engine.bgMonitorDefault ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')})'
-                            : (_bgMonitor! ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')),
-                        value: _bgMonitor ?? true,
-                        action: () {
-                          setState(() {
-                            if (_bgMonitor == null) {
-                              _bgMonitor = false;
-                            } else if (_bgMonitor == false) {
-                              _bgMonitor = null;
-                            } else {
-                              _bgMonitor = false;
-                            }
-                          });
-                        },
-                        switcher: (val) {
-                          setState(() => _bgMonitor = val ? null : false);
-                        },
-                      ),
-                    ]),
-                  ],
+
 
                   if (_overrideDefaults) ...[
                     Category.settings(title: engine.dict.value('sp_section_order'), context: context),
@@ -389,20 +394,7 @@ class _StatusPageEditorPageState extends State<StatusPageEditorPage> {
                       ),
                     ),
                   ],
-
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 24, 15, 48),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _detectedName != null ? _save : null,
-                        icon: const Icon(Icons.save_rounded),
-                        label: Text(_isEditing
-                            ? engine.dict.value('save_changes')
-                            : engine.dict.value('add_statuspage')),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 50,)
                 ],
               ),
             ),

@@ -51,9 +51,12 @@ class _ServersPageState extends State<ServersPage> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: Cards(context: context).cardGroup([
-                    CardContents.tap(
+                    CardContents.tapIcon(
                       title: engine.dict.value('no_servers_tap'),
                       subtitle: engine.dict.value('no_servers_tap_hint'),
+                      icon: Icons.list_alt_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       action: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -168,7 +171,7 @@ class _ServerListTile extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  server.isAio ? Icons.monitor_heart_rounded : Icons.wifi_tethering_rounded,
+                  server.isAio ? Icons.dns_rounded : Icons.monitor_heart_rounded,
                   color: server.isAio ? scheme.primary : scheme.onSurfaceVariant,
                   size: 26,
                 ),
@@ -190,23 +193,6 @@ class _ServerListTile extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (!server.isAio)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: scheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              engine.dict.value('ping_only_badge'),
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),

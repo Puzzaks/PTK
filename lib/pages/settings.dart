@@ -93,47 +93,6 @@ class SettingsPage extends StatelessWidget {
                       action: () => engine.defaultTab = engine.defaultTab == 0 ? 1 : 0,
                       switcher: (v) => engine.defaultTab = v ? 1 : 0,
                     ),
-                  ]),
-                  // ── Configuration ──────────────────────────────
-                  Category.settings(title: engine.dict.value('settings'), context: context),
-                  cards.cardGroup([
-                    CardContents.tapIcon(
-                      title: engine.dict.value('settings_servers'),
-                      subtitle: engine.servers.length == 1
-                          ? '1 ${engine.dict.value('servers_configured')}'
-                          : '${engine.statusPages.length} ${engine.dict.value('servers_configured_plural')}',
-                      icon: Icons.dns_rounded,
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
-                      action: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SettingsServersPage(),
-                          settings: const RouteSettings(name: 'SettingsServersPage'),
-                        ),
-                      ),
-                    ),
-                    CardContents.tapIcon(
-                      title: engine.dict.value('settings_statuspages'),
-                      subtitle: engine.statusPages.length == 1
-                        ? '1 ${engine.dict.value('statuspages_configured')}'
-                            : '${engine.statusPages.length} ${engine.dict.value('statuspages_configured_plural')}',
-                      icon: Icons.hub_rounded,
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
-                      action: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SettingsStatuspagesPage(),
-                          settings: const RouteSettings(name: 'SettingsStatuspagesPage'),
-                        ),
-                      ),
-                    ),
-                  ]),
-
-                  // ── Background Monitoring ──────────────────────
-                  Category.settings(title: engine.dict.value('bg_monitoring'), context: context),
-                  cards.cardGroup([
                     CardContents.turn(
                       title: engine.dict.value('bg_monitoring'),
                       subtitle: engine.bgMonitorEnabled
@@ -172,15 +131,51 @@ class SettingsPage extends StatelessWidget {
                       },
                     ),
                     if (engine.bgMonitorEnabled)
-                      CardContents.doubleTap(
+                      CardContents.tapIcon(
                         title: engine.dict.value('bg_notification_settings'),
                         subtitle: '',
                         icon: Icons.notifications_rounded,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                         action: () => _openNotificationSettings(),
-                        secondAction: () => _openNotificationSettings(),
                       ),
                   ]),
-
+                  // ── Configuration ──────────────────────────────
+                  Category.settings(title: engine.dict.value('settings'), context: context),
+                  cards.cardGroup([
+                    CardContents.tapIcon(
+                      title: engine.dict.value('settings_servers'),
+                      subtitle: engine.servers.length == 1
+                          ? '1 ${engine.dict.value('servers_configured')}'
+                          : '${engine.servers.length} ${engine.dict.value('servers_configured_plural')}',
+                      icon: Icons.dns_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      action: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsServersPage(),
+                          settings: const RouteSettings(name: 'SettingsServersPage'),
+                        ),
+                      ),
+                    ),
+                    CardContents.tapIcon(
+                      title: engine.dict.value('settings_statuspages'),
+                      subtitle: engine.statusPages.length == 1
+                        ? '1 ${engine.dict.value('statuspages_configured')}'
+                            : '${engine.statusPages.length} ${engine.dict.value('statuspages_configured_plural')}',
+                      icon: Icons.hub_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      action: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsStatuspagesPage(),
+                          settings: const RouteSettings(name: 'SettingsStatuspagesPage'),
+                        ),
+                      ),
+                    ),
+                  ]),
                   const SizedBox(height: 50),
                 ],
               ),

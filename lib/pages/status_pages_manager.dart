@@ -1,3 +1,4 @@
+import 'package:PTK/pages/support/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:PTK/engine.dart';
@@ -79,15 +80,11 @@ class StatusPagesManagerPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        engine.dict.value('servers_drag_hint'), // Reuse this hint since it applies perfectly
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
+                    TextPart.info(
+                      title: engine.dict.value('servers_drag_hint'),
+                      subtitle: '',
+                      action: (){},
+                      context: context
                     ),
                     const SizedBox(height: 80), // Padding for FAB
                   ],

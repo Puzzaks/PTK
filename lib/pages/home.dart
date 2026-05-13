@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'package:PTK/pages/support/elements.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:PTK/engine.dart';
 import 'package:PTK/models/server_watcher.dart';
@@ -160,7 +162,18 @@ class _ServerListTab extends StatelessWidget {
                 icon: const Icon(Icons.add_rounded),
                 label: Text(engine.dict.value('add_server')),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 30),
+              TextPart.infoShort(
+                title: engine.dict.value('servers_desc'),
+                subtitle: engine.dict.value('servers_desc_info'),
+                action: () async {
+                  await launchUrl(
+                  Uri.parse("https://github.com/Puzzak/AIO-Monitor"),
+                  mode: LaunchMode.externalApplication
+                  );
+                },
+                context: context,
+              ),
             ],
           ),
         );

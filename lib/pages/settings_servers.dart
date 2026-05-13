@@ -38,9 +38,12 @@ class SettingsServersPage extends StatelessWidget {
                 children: [
                   Category.settings(title: engine.dict.value('servers'), context: context),
                   cards.cardGroup([
-                    CardContents.tap(
+                    CardContents.tapIcon(
                       title: engine.dict.value('server_manager'),
                       subtitle: countStr,
+                      icon: Icons.dns_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       action: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -70,22 +73,31 @@ class SettingsServersPage extends StatelessWidget {
 
                   Category.settings(title: engine.dict.value('default_server_card_stats'), context: context),
                   cards.cardGroup([
-                    CardContents.tap(
+                    CardContents.tapIcon(
                       title: engine.dict.value('card_graph'),
                       subtitle: engine.defaultGraphStat.label,
+                      icon: Icons.area_chart_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       action: () => _showGraphPicker(context, engine),
                     ),
-                    CardContents.tap(
+                    CardContents.tapIcon(
                       title: engine.dict.value('card_stat1'),
                       subtitle: engine.defaultTextStat1?.label ?? engine.dict.value('nothing'),
+                      icon: Icons.align_horizontal_left_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       action: () => _showStatPicker(context, engine, 'card_stat1', engine.defaultTextStat1, (s) {
                         engine.defaultTextStat1 = s;
                         _save(engine);
                       }),
                     ),
-                    CardContents.tap(
+                    CardContents.tapIcon(
                       title: engine.dict.value('card_stat2'),
                       subtitle: engine.defaultTextStat2?.label ?? engine.dict.value('nothing'),
+                      icon: Icons.align_horizontal_right_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       action: () => _showStatPicker(context, engine, 'card_stat2', engine.defaultTextStat2, (s) {
                         engine.defaultTextStat2 = s;
                         _save(engine);

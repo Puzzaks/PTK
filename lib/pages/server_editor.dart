@@ -375,6 +375,15 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                     tooltip: engine.dict.value('delete_server'),
                     onPressed: _confirmDelete,
                   ),
+                if (_isEditing)
+                  IconButton(
+                    icon: Icon(Icons.save_rounded),
+                    tooltip: _isEditing
+                        ? engine.dict.value('save_changes')
+                        : engine.dict.value('add_server'),
+                    onPressed: _save,
+                  ),
+
               ],
             ),
 
@@ -389,8 +398,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                     child: TextField(
                       controller: _nameCtrl,
                       decoration: InputDecoration(
-                        labelText: engine.dict.value('display_name'),
-                        hintText: engine.dict.value('display_name_hint'),
+                        hintText: engine.dict.value('display_name'),
                         filled: true,
                         fillColor: scheme.surfaceContainer,
                         border: OutlineInputBorder(
@@ -416,8 +424,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                       keyboardType: TextInputType.url,
                       autocorrect: false,
                       decoration: InputDecoration(
-                        labelText: engine.dict.value('server_url_label'),
-                        hintText: engine.dict.value('server_url_hint'),
+                        hintText: engine.dict.value('server_url_label'),
                         filled: true,
                         fillColor: scheme.surfaceContainer,
                         border: OutlineInputBorder(
@@ -459,85 +466,115 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                     duration: const Duration(milliseconds: 350),
                     child: _aioDetected == null
                         ? Padding(
-                            key: const ValueKey('hint'),
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: TextPart.infoShort(
-                              title: engine.dict.value('server_url_explainer'),
-                              subtitle: engine.dict.value('get_aio_link'),
-                              action: () => launchUrl(
-                                Uri.parse('https://github.com/Puzzak/AIO-Monitor'),
-                                mode: LaunchMode.externalApplication,
-                              ),
-                              context: context,
-                            ),
-                          )
+                      key: const ValueKey('hint'),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextPart.infoShort(
+                        title: engine.dict.value('server_url_explainer'),
+                        subtitle: engine.dict.value('get_aio_link'),
+                        action: () => launchUrl(
+                          Uri.parse('https://github.com/Puzzak/AIO-Monitor'),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        context: context,
+                      ),
+                    )
                         : _aioDetected!
-                            // AIO detected → show live data panel
-                            ? _AioInfoPanel(telem: telem, engine: engine, key: const ValueKey('aio'))
-                            // Not AIO → show hint with link
-                            : Padding(
-                                key: const ValueKey('no_aio'),
-                                padding: const EdgeInsets.symmetric(horizontal: 15),
-                                child: TextPart.infoShort(
-                                  title: engine.dict.value('aio_not_found'),
-                                  subtitle: engine.dict.value('get_aio_link'),
-                                  action: () => launchUrl(
-                                    Uri.parse('https://github.com/Puzzak/AIO-Monitor'),
-                                    mode: LaunchMode.externalApplication,
-                                  ),
-                                  context: context,
-                                ),
-                              ),
+                    // AIO detected → show live data panel
+                        ? _AioInfoPanel(telem: telem, engine: engine, key: const ValueKey('aio'))
+                    // Not AIO → show hint with link
+                        : Padding(
+                      key: const ValueKey('no_aio'),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextPart.infoShort(
+                        title: engine.dict.value('aio_not_found'),
+                        subtitle: engine.dict.value('get_aio_link'),
+                        action: () => launchUrl(
+                          Uri.parse('https://github.com/Puzzak/AIO-Monitor'),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        context: context,
+                      ),
+                    ),
                   ),
 
-                  // ── Configuration Overrides (AIO only) ──────────
-                  if (showAio) ...[
-                    Category.settings(title: engine.dict.value('settings'), context: context),
-                    Cards(context: context).cardGroup([
+                  Category.settings(title: engine.dict.value('settings'), context: context),
+
+          Cards(context: context).cardGroup([
+                  // ── Background Monitoring toggle ─────────────
+                  if (engine.bgMonitorEnabled) ...[
                       CardContents.turn(
-                        title: engine.dict.value('override_defaults'),
-                        subtitle: engine.dict.value('override_defaults_hint'),
-                        value: _overrideDefaults,
+                        title: engine.dict.value('bg_per_entity_monitor'),
+                        subtitle: _bgMonitor == null
+                            ? '${engine.dict.value('bg_per_entity_default')} (${engine.bgMonitorDefault ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')})'
+                            : (_bgMonitor! ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')),
+                        value: _bgMonitor ?? true,
                         action: () {
                           setState(() {
-                            _overrideDefaults = !_overrideDefaults;
-                            if (_overrideDefaults) {
-                              _graphStat ??= engine.defaultGraphStat;
-                              _textStat1 ??= engine.defaultTextStat1;
-                              _textStat2 ??= engine.defaultTextStat2;
-                              _graphOrder ??= List.of(engine.defaultGraphOrder);
+                            if (_bgMonitor == null) {
+                              _bgMonitor = false;
+                            } else if (_bgMonitor == false) {
+                              _bgMonitor = null;
+                            } else {
+                              _bgMonitor = false;
                             }
                           });
-                          _autoSaveStats();
+                          if (_isEditing) _autoSaveStats();
                         },
                         switcher: (val) {
-                          setState(() {
-                            _overrideDefaults = val;
-                            if (val) {
-                              _graphStat ??= engine.defaultGraphStat;
-                              _textStat1 ??= engine.defaultTextStat1;
-                              _textStat2 ??= engine.defaultTextStat2;
-                              _graphOrder ??= List.of(engine.defaultGraphOrder);
-                            }
-                          });
-                          _autoSaveStats();
+                          setState(() => _bgMonitor = val ? null : false);
+                          if (_isEditing) _autoSaveStats();
                         },
                       ),
-                    ]),
                   ],
+            if (showAio) ...[
+              CardContents.turn(
+                title: engine.dict.value('override_defaults'),
+                subtitle: engine.dict.value('override_defaults_hint'),
+                value: _overrideDefaults,
+                action: () {
+                  setState(() {
+                    _overrideDefaults = !_overrideDefaults;
+                    if (_overrideDefaults) {
+                      _graphStat ??= engine.defaultGraphStat;
+                      _textStat1 ??= engine.defaultTextStat1;
+                      _textStat2 ??= engine.defaultTextStat2;
+                      _graphOrder ??= List.of(engine.defaultGraphOrder);
+                    }
+                  });
+                  _autoSaveStats();
+                },
+                switcher: (val) {
+                  setState(() {
+                    _overrideDefaults = val;
+                    if (val) {
+                      _graphStat ??= engine.defaultGraphStat;
+                      _textStat1 ??= engine.defaultTextStat1;
+                      _textStat2 ??= engine.defaultTextStat2;
+                      _graphOrder ??= List.of(engine.defaultGraphOrder);
+                    }
+                  });
+                  _autoSaveStats();
+                },
+              ),
+            ],
+
+          ]),
+                  // ── Configuration Overrides (AIO only) ──────────
+
 
                   // ── Card display pickers (AIO only, one group) ──
                   if (showAio && _overrideDefaults) ...[
                     Category.settings(title: engine.dict.value('card_display'), context: context),
                     Cards(context: context).cardGroup([
-                      CardContents.doubleTap(
+                      CardContents.tapIcon(
                         title: engine.dict.value('card_graph'),
                         subtitle: _graphStat?.label ?? '',
                         action: _showGraphPicker,
                         icon: Icons.show_chart_rounded,
-                        secondAction: _showGraphPicker,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
-                      CardContents.doubleTap(
+                      CardContents.tapIcon(
                         title: engine.dict.value('card_stat_1'),
                         subtitle: _textStat1?.label ?? engine.dict.value('nothing'),
                         action: () => _showStatPicker(
@@ -545,14 +582,11 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                           current:  _textStat1,
                           onSelect: (v) => setState(() => _textStat1 = v),
                         ),
-                        icon: Icons.bar_chart_rounded,
-                        secondAction: () => _showStatPicker(
-                          titleKey: 'card_stat_1',
-                          current:  _textStat1,
-                          onSelect: (v) => setState(() => _textStat1 = v),
-                        ),
+                        icon: Icons.align_horizontal_left,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
-                      CardContents.doubleTap(
+                      CardContents.tapIcon(
                         title: engine.dict.value('card_stat_2'),
                         subtitle: _textStat2?.label ?? engine.dict.value('nothing'),
                         action: () => _showStatPicker(
@@ -560,12 +594,9 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                           current:  _textStat2,
                           onSelect: (v) => setState(() => _textStat2 = v),
                         ),
-                        icon: Icons.bar_chart_rounded,
-                        secondAction: () => _showStatPicker(
-                          titleKey: 'card_stat_2',
-                          current:  _textStat2,
-                          onSelect: (v) => setState(() => _textStat2 = v),
-                        ),
+                        icon: Icons.align_horizontal_right_rounded,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
                     ]),
                   ],
@@ -602,61 +633,14 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                      child: Text(
-                        engine.dict.value('graph_order_hint'),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
+                    const SizedBox(height: 20),
+                    TextPart.info(
+                      title: engine.dict.value('graph_order_hint'),
+                      subtitle: '',
+                      action: (){},
+                      context: context
                     ),
                   ],
-
-                  // ── Background Monitoring toggle ─────────────
-                  if (engine.bgMonitorEnabled) ...[
-                    Category.settings(title: engine.dict.value('bg_per_entity_monitor'), context: context),
-                    Cards(context: context).cardGroup([
-                      CardContents.turn(
-                        title: engine.dict.value('bg_per_entity_monitor'),
-                        subtitle: _bgMonitor == null
-                            ? '${engine.dict.value('bg_per_entity_default')} (${engine.bgMonitorDefault ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')})'
-                            : (_bgMonitor! ? engine.dict.value('bg_monitoring_active') : engine.dict.value('bg_monitoring_inactive')),
-                        value: _bgMonitor ?? true,
-                        action: () {
-                          setState(() {
-                            if (_bgMonitor == null) {
-                              _bgMonitor = false;
-                            } else if (_bgMonitor == false) {
-                              _bgMonitor = null;
-                            } else {
-                              _bgMonitor = false;
-                            }
-                          });
-                          if (_isEditing) _autoSaveStats();
-                        },
-                        switcher: (val) {
-                          setState(() => _bgMonitor = val ? null : false);
-                          if (_isEditing) _autoSaveStats();
-                        },
-                      ),
-                    ]),
-                  ],
-
-                  // ── Save button (name + URL only) ────────────
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 24, 15, 48),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _save,
-                        icon: const Icon(Icons.save_rounded),
-                        label: Text(_isEditing
-                            ? engine.dict.value('save_changes')
-                            : engine.dict.value('add_server')),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
