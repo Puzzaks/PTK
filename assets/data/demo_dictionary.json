@@ -1,0 +1,110 @@
+{
+  "statuspages": [
+    {
+      "name": "Jira",
+      "link": "https://jira-software.status.atlassian.com/"
+    },
+    {
+      "name": "Jira Service Management",
+      "link": "https://jira-service-management.status.atlassian.com/"
+    },
+    {
+      "name": "Cloudflare",
+      "link": "https://www.cloudflarestatus.com/"
+    },
+    {
+      "name": "Discord",
+      "link": "https://discordstatus.com/"
+    },
+    {
+      "name": "GitHub Status",
+      "link": "https://www.githubstatus.com/"
+    },
+    {
+      "name": "DigitalOcean",
+      "link": "https://status.digitalocean.com/"
+    },
+    {
+      "name": "Confluence",
+      "link": "https://confluence.status.atlassian.com/"
+    },
+    {
+      "name": "Atlassian",
+      "link": "https://status.atlassian.com/"
+    },
+    {
+      "name": "Squarespace",
+      "link": "https://status.squarespace.com/"
+    },
+    {
+      "name": "OpenAI",
+      "link": "https://status.openai.com/"
+    },
+    {
+      "name": "Claude",
+      "link": "https://status.anthropic.com/"
+    },
+    {
+      "name": "Reddit",
+      "link": "https://www.redditstatus.com/"
+    },
+    {
+      "name": "Figma",
+      "link": "https://status.figma.com/"
+    },
+    {
+      "name": "Postman",
+      "link": "https://status.postman.com/"
+    },
+    {
+      "name": "Epic Games Public",
+      "link": "https://status.epicgames.com/"
+    },
+    {
+      "name": "Zoom",
+      "link": "https://status.zoom.us/"
+    },
+    {
+      "name": "Hostinger",
+      "link": "https://statuspage.hostinger.com/"
+    },
+    {
+      "name": "Wikimedia",
+      "link": "https://www.wikimediastatus.net/"
+    },
+    {
+      "name": "NVIDIA GeForce NOW",
+      "link": "https://status.geforcenow.com/"
+    },
+    {
+      "name": "Twitch",
+      "link": "https://status.twitch.tv/"
+    },
+    {
+      "name": "OpenVPN",
+      "link": "https://status.openvpn.net/"
+    },
+    {
+      "name": "LinkedIn",
+      "link": "https://www.linkedin-status.com/"
+    },
+    {
+      "name": "Grafana Cloud",
+      "link": "https://status.grafana.com/"
+    }
+  ],
+  "servers": [
+    {
+      "name":"Puzzak's",
+      "link": "https://puzzak.page/AIO.php"
+    },
+    {
+      "name":"Thinkpad.dev",
+      "link": "https://aio.thinkpad.dev/"
+    },
+    {
+      "name":"Google",
+      "link": "https://Google.com"
+    }
+  ]
+}
