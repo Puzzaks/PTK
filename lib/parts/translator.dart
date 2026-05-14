@@ -9,6 +9,7 @@ class Dictionary {
   List languages = [];
   bool systemLanguage = false;
   Map dictionary = {};
+  Map demoData = {};
   String locale = "en";
   String path = "";
   String url = "";
@@ -23,19 +24,30 @@ class Dictionary {
     if(box.containsKey("language")){
       locale = box.get("language", defaultValue: "en");
     }else{
-      setSystemLanguage();
+      await setSystemLanguage();
     }
   }
   
   setSystemLanguage() async {
     final box = Hive.box('app_storage');
-    // Remove the saved preference so decideLanguage() falls back to device locale on next boot
-    await box.delete("language");
     String deviceLocale = Platform.localeName.split("_")[0];
-    for(int a = 0; a < languages.length;a++){
+    
+    bool found = false;
+    for(int a = 0; a < languages.length; a++){
       if(languages[a]["id"] == deviceLocale){
         locale = deviceLocale;
+        found = true;
+        break;
       }
+    }
+
+    if (!found) {
+      locale = "en"; // Fallback
+    }
+
+    // Persist it if this is the first start (no language key)
+    if (!box.containsKey("language")) {
+       await box.put("language", locale);
     }
   }
   
@@ -44,7 +56,7 @@ class Dictionary {
     for(int a = 0; a < languages.length;a++){
       if(languages[a]["id"] == variant){
         locale = variant;
-        box.put("language", variant);
+        await box.put("language", variant);
       }
     }
   }
@@ -59,6 +71,19 @@ class Dictionary {
     } else {
       String assetLangList = await rootBundle.loadString('$path/languages.json');
       languages = jsonDecode(assetLangList);
+    }
+
+    // Load Demo Dictionary
+    String? cachedDemo = box.get("cached_demo_dict");
+    if (cachedDemo != null) {
+      demoData = jsonDecode(cachedDemo);
+    } else {
+      try {
+        String assetDemo = await rootBundle.loadString('assets/data/demo_dictionary.json');
+        demoData = jsonDecode(assetDemo);
+      } catch (e) {
+        if (kDebugMode) print("Failed to load demo_dictionary asset: $e");
+      }
     }
     
     await decideLanguage();
@@ -105,11 +130,43 @@ class Dictionary {
         } else {
           if (log != null) await log("dict", "error", "Failed to fetch language list: ${response.statusCode}");
         }
+
+        // Fetch demo dictionary from GH
+        if (log != null) await log("dict", "info", "Fetching demo dictionary from $url/assets/data/demo_dictionary.json");
+        final demoRes = await http.get(Uri.parse("$url/assets/data/demo_dictionary.json"));
+        if(demoRes.statusCode == 200) {
+          demoData = jsonDecode(demoRes.body);
+          box.put("cached_demo_dict", demoRes.body);
+          if (log != null) await log("dict", "info", "Demo dictionary fetched and cached");
+        }
+
       }catch(e){
-        if (kDebugMode) print("Falling back to strictly offline Languages! Error: $e");
+        if (kDebugMode) print("Falling back to strictly offline! Error: $e");
         if (log != null) await log("dict", "error", "Network error during dictionary setup: $e");
       }
     }
+  }
+
+  /// Traverses [demoData] using dot notation (e.g., 'statuspages.0.name')
+  dynamic data(String path) {
+    if (demoData.isEmpty) return null;
+    List<String> parts = path.split('.');
+    dynamic current = demoData;
+    for (String part in parts) {
+      if (current is Map && current.containsKey(part)) {
+        current = current[part];
+      } else if (current is List) {
+        int? index = int.tryParse(part);
+        if (index != null && index >= 0 && index < current.length) {
+          current = current[index];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+    return current;
   }
 
   String value (String entry){

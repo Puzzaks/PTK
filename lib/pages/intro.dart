@@ -13,11 +13,12 @@ class IntroPage extends StatefulWidget {
 class _IntroPageState extends State<IntroPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  bool _addDemoServer = true;
-  bool _addDemoStatusPage = true;
   bool _bgMonitoring = false;
 
-  static const _totalPages = 5;
+  final Set<int> _selectedServers = {};
+  final Set<int> _selectedStatusPages = {};
+
+  static const _totalPages = 6;
 
   @override
   void dispose() {
@@ -37,9 +38,20 @@ class _IntroPageState extends State<IntroPage> {
   Future<void> _finish() async {
     final engine = Provider.of<AppEngine>(context, listen: false);
 
-    // Add demo services if selected
-    if (_addDemoServer) await engine.addDemoServer();
-    if (_addDemoStatusPage) await engine.addDemoStatusPage();
+    // Add selected services from the proposals list
+    final List servers = engine.dict.demoData['servers'] ?? [];
+    for (int idx in _selectedServers) {
+      if (idx < servers.length) {
+        await engine.addDemoService(servers[idx], true);
+      }
+    }
+
+    final List statusPages = engine.dict.demoData['statuspages'] ?? [];
+    for (int idx in _selectedStatusPages) {
+      if (idx < statusPages.length) {
+        await engine.addDemoService(statusPages[idx], false);
+      }
+    }
 
     // Enable bg monitoring if selected
     if (_bgMonitoring) {
@@ -65,6 +77,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    final engine = Provider.of<AppEngine>(context);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -83,6 +96,7 @@ class _IntroPageState extends State<IntroPage> {
                   _buildPingPage(scheme, textTheme),
                   _buildAioPage(scheme, textTheme),
                   _buildStatusPagePage(scheme, textTheme),
+                  _buildProposalsPage(scheme, textTheme),
                   _buildBgMonitorPage(scheme, textTheme),
                 ],
               ),
@@ -124,7 +138,7 @@ class _IntroPageState extends State<IntroPage> {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeInOut,
                           ),
-                          child: const Text('Skip'),
+                          child: Text(engine.dict.value('intro_skip')),
                         )
                       : const SizedBox(width: 72),
 
@@ -132,12 +146,12 @@ class _IntroPageState extends State<IntroPage> {
                   _currentPage < _totalPages - 1
                       ? FilledButton(
                           onPressed: _nextPage,
-                          child: const Text('Next'),
+                          child: Text(engine.dict.value('intro_next')),
                         )
                       : FilledButton.icon(
                           onPressed: _finish,
                           icon: const Icon(Icons.check_rounded),
-                          label: const Text('Get Started'),
+                          label: Text(engine.dict.value('intro_get_started')),
                         ),
                 ],
               ),
@@ -151,58 +165,53 @@ class _IntroPageState extends State<IntroPage> {
   // ── Slide builders ──────────────────────────────────────
 
   Widget _buildWelcomePage(ColorScheme scheme, TextTheme textTheme) {
+    final engine = Provider.of<AppEngine>(context, listen: false);
     return _SlideLayout(
-      icon: Icons.monitor_heart_rounded,
-      iconColor: scheme.primary,
-      title: 'Welcome to PTK',
-      description: 'Your server and service monitoring toolkit.\n\n'
-          'PTK lets you keep an eye on your servers, track their performance, '
-          'and monitor the status of cloud services — all from your phone.',
+      icon: Icons.hub_rounded,
+      icons: [Icons.network_ping_rounded, Icons.insights_rounded, Icons.hub_rounded],
+      iconColor: Colors.transparent,
+      title: engine.dict.value('intro_welcome_title'),
+      description: engine.dict.value('intro_welcome_desc'),
     );
   }
 
   Widget _buildPingPage(ColorScheme scheme, TextTheme textTheme) {
+    final engine = Provider.of<AppEngine>(context, listen: false);
     return _SlideLayout(
       icon: Icons.network_ping_rounded,
-      iconColor: Colors.teal,
-      title: 'Ping Monitoring',
-      description: 'PTK monitors your servers using TCP pings — lightweight '
-          'network probes that measure latency and availability.\n\n'
-          'No installation needed on your server. Just add the URL and PTK '
-          'will start tracking response times and online status in real time.',
+      icons: [Icons.hub_rounded],
+      iconColor: scheme.primary,
+      title: engine.dict.value('intro_ping_title'),
+      description: engine.dict.value('intro_ping_desc'),
     );
   }
 
   Widget _buildAioPage(ColorScheme scheme, TextTheme textTheme) {
+    final engine = Provider.of<AppEngine>(context, listen: false);
     return _SlideLayout(
       icon: Icons.insights_rounded,
-      iconColor: Colors.deepOrange,
-      title: 'Full Telemetry with AIO',
-      description: 'Install the AIO.php script on your server to unlock '
-          'full telemetry:\n\n'
-          '• CPU load & temperature\n'
-          '• RAM usage\n'
-          '• Network throughput\n'
-          '• System uptime\n\n'
-          'All metrics are displayed in real-time charts with history.',
+      icons: [Icons.hub_rounded],
+      iconColor: scheme.primary,
+      title: engine.dict.value('intro_aio_title'),
+      description: engine.dict.value('intro_aio_desc'),
     );
   }
 
   Widget _buildStatusPagePage(ColorScheme scheme, TextTheme textTheme) {
+    final engine = Provider.of<AppEngine>(context, listen: false);
     return _SlideLayout(
-      icon: Icons.cloud_done_rounded,
-      iconColor: Colors.blue,
-      title: 'Status Pages',
-      description: 'Monitor Atlassian-powered status pages for your cloud '
-          'services.\n\n'
-          'Get instant visibility into incidents, scheduled maintenance, '
-          'and component health for services like GitHub, Cloudflare, '
-          'Discord, and thousands more.',
+      icon: Icons.hub_rounded,
+      icons: [Icons.hub_rounded],
+      iconColor: scheme.primary,
+      title: engine.dict.value('intro_statuspage_title'),
+      description: engine.dict.value('intro_statuspage_desc'),
     );
   }
 
   Widget _buildBgMonitorPage(ColorScheme scheme, TextTheme textTheme) {
-    return SingleChildScrollView(
+    final engine = Provider.of<AppEngine>(context, listen: false);
+
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -215,7 +224,7 @@ class _IntroPageState extends State<IntroPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Background Monitoring',
+            engine.dict.value('intro_bg_title'),
             style: textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -223,65 +232,159 @@ class _IntroPageState extends State<IntroPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Choose how you want PTK to monitor your services:',
+            engine.dict.value('intro_bg_subtitle'),
             style: textTheme.bodyLarge?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           // Choice cards
           _ChoiceCard(
             icon: Icons.phone_android_rounded,
-            title: 'In-App Only',
-            subtitle: 'Monitor only while the app is open',
+            title: engine.dict.value('intro_bg_inapp'),
+            subtitle: engine.dict.value('intro_bg_inapp_desc'),
             selected: !_bgMonitoring,
             onTap: () => setState(() => _bgMonitoring = false),
           ),
           const SizedBox(height: 12),
           _ChoiceCard(
             icon: Icons.notifications_active_rounded,
-            title: 'Background + Notifications',
-            subtitle: 'Continuous monitoring with instant alerts, even when the app is closed',
+            title: engine.dict.value('intro_bg_background'),
+            subtitle: engine.dict.value('intro_bg_background_desc'),
             selected: _bgMonitoring,
             onTap: () => setState(() => _bgMonitoring = true),
           ),
-
-          const SizedBox(height: 32),
-
-          // Demo services section
-          Divider(color: scheme.outlineVariant),
-          const SizedBox(height: 16),
-          Text(
-            'Add demo services?',
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Explore the app with sample data',
-            style: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-          ),
           const SizedBox(height: 12),
-          CheckboxListTile(
-            value: _addDemoServer,
-            onChanged: (v) => setState(() => _addDemoServer = v ?? true),
-            title: const Text('Demo Server (puzzak.page)'),
-            subtitle: const Text('AIO-enabled server with full telemetry'),
-            secondary: const Icon(Icons.dns_rounded),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+          Text(
+            engine.dict.value('intro_bg_tip'),
+            style: textTheme.bodyLarge?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
           ),
-          CheckboxListTile(
-            value: _addDemoStatusPage,
-            onChanged: (v) => setState(() => _addDemoStatusPage = v ?? true),
-            title: const Text('Demo Status Page (GitHub)'),
-            subtitle: const Text('Track GitHub service incidents'),
-            secondary: const Icon(Icons.cloud_done_rounded),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  Widget _buildProposalsPage(ColorScheme scheme, TextTheme textTheme) {
+    final engine = Provider.of<AppEngine>(context);
+    final List servers = engine.dict.demoData['servers'] ?? [];
+    final List statusPages = engine.dict.demoData['statuspages'] ?? [];
+
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar.large(
+          expandedHeight: MediaQuery.of(context).size.height * 0.45,
+          pinned: true,
+          backgroundColor: scheme.surface,
+          surfaceTintColor: Colors.transparent,
+          automaticallyImplyLeading: true,
+          elevation: 0,
+          title: Text(
+            engine.dict.value('intro_demo_hero')
+          ),
+          flexibleSpace: FlexibleSpaceBar(
+            collapseMode: CollapseMode.pin,
+            background: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(Icons.auto_awesome_rounded, size: 72, color: scheme.primary),
+                    const SizedBox(height: 24),
+                    Text(
+                      engine.dict.value('intro_demo_title'),
+                      style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      engine.dict.value('intro_demo_desc'),
+                      style: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              if (servers.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(
+                    engine.dict.value('servers').toUpperCase(),
+                    style: textTheme.labelLarge?.copyWith(color: scheme.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...List.generate(servers.length, (index) {
+                  final item = servers[index];
+                  final name = item['name'] ?? 'Server';
+                  final url = item['link'] ?? '';
+                  return CheckboxListTile(
+                    value: _selectedServers.contains(index),
+                    onChanged: (v) {
+                      setState(() {
+                        if (v == true) {
+                          _selectedServers.add(index);
+                        } else {
+                          _selectedServers.remove(index);
+                        }
+                      });
+                    },
+                    title: Text(name),
+                    subtitle: Text(url, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    secondary: const Icon(Icons.dns_rounded),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  );
+                }),
+              ],
+              if (statusPages.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(
+                    engine.dict.value('status_pages').toUpperCase(),
+                    style: textTheme.labelLarge?.copyWith(color: scheme.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...List.generate(statusPages.length, (index) {
+                  final item = statusPages[index];
+                  final name = item['name'] ?? 'Status Page';
+                  final url = item['link'] ?? '';
+                  return CheckboxListTile(
+                    value: _selectedStatusPages.contains(index),
+                    onChanged: (v) {
+                      setState(() {
+                        if (v == true) {
+                          _selectedStatusPages.add(index);
+                        } else {
+                          _selectedStatusPages.remove(index);
+                        }
+                      });
+                    },
+                    title: Text(name),
+                    subtitle: Text(url, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    secondary: const Icon(Icons.hub_rounded),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  );
+                }),
+              ],
+              const SizedBox(height: 80),
+            ]),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -290,6 +393,7 @@ class _IntroPageState extends State<IntroPage> {
 
 class _SlideLayout extends StatelessWidget {
   final IconData icon;
+  final List<IconData> icons;
   final Color iconColor;
   final String title;
   final String description;
@@ -299,6 +403,7 @@ class _SlideLayout extends StatelessWidget {
     required this.iconColor,
     required this.title,
     required this.description,
+    required this.icons,
   });
 
   @override
@@ -311,7 +416,14 @@ class _SlideLayout extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 72, color: iconColor),
+          icons.length == 1
+           ? Icon(icon, size: 72, color: iconColor)
+           : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(icons.length, (index) {
+              return Icon(icons[index], size: 72, color: iconColor);
+            }),
+          ),
           const SizedBox(height: 32),
           Text(
             title,
@@ -401,8 +513,10 @@ class _ChoiceCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected)
-                Icon(Icons.check_circle_rounded, color: scheme.primary),
+              const SizedBox(width: 16),
+              selected
+                ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                : Icon(Icons.check_circle_rounded, color: Colors.transparent),
             ],
           ),
         ),

@@ -232,27 +232,42 @@ class AppEngine with md.ChangeNotifier {
 
   // ── Demo seeding (called from intro) ──────────────────────
   Future<void> addDemoServer() async {
-    if (_servers.any((s) => s.id == 'seed_puzzak')) return;
-    _servers.add(ServerWatcher(
-      id: 'seed_puzzak',
-      name: 'puzzak.page',
-      url: 'https://puzzak.page/AIO.php',
-      order: _servers.length,
-    ));
-    await _saveServers();
-    notifyListeners();
+    final name = dict.data('servers.0.name') ?? 'puzzak.page';
+    final url  = dict.data('servers.0.link') ?? 'https://puzzak.page/AIO.php';
+    await addDemoService({'name': name, 'link': url}, true);
   }
 
   Future<void> addDemoStatusPage() async {
-    if (_statusPages.any((sp) => sp.id == 'seed_github')) return;
-    _statusPages.add(StatusPage(
-      id: 'seed_github',
-      name: 'GitHub Status',
-      url: 'https://www.githubstatus.com',
-      order: _statusPages.length,
-    ));
-    await _saveStatusPages();
-    fetchStatusPageSummary(_statusPages.last);
+    final name = dict.data('statuspages.0.name') ?? 'GitHub Status';
+    final url  = dict.data('statuspages.0.link') ?? 'https://www.githubstatus.com';
+    await addDemoService({'name': name, 'link': url}, false);
+  }
+
+  Future<void> addDemoService(Map entry, bool isServer) async {
+    final name = entry['name'] ?? 'Demo';
+    final url  = entry['link'] ?? '';
+    if (url.isEmpty) return;
+
+    if (isServer) {
+      if (_servers.any((s) => s.url == url)) return;
+      _servers.add(ServerWatcher(
+        id: 'seed_${name.replaceAll(' ', '_').toLowerCase()}_${DateTime.now().microsecondsSinceEpoch}',
+        name: name,
+        url: url,
+        order: _servers.length,
+      ));
+      await _saveServers();
+    } else {
+      if (_statusPages.any((sp) => sp.url == url)) return;
+      _statusPages.add(StatusPage(
+        id: 'seed_${name.replaceAll(' ', '_').toLowerCase()}_${DateTime.now().microsecondsSinceEpoch}',
+        name: name,
+        url: url,
+        order: _statusPages.length,
+      ));
+      await _saveStatusPages();
+      fetchStatusPageSummary(_statusPages.last);
+    }
     notifyListeners();
   }
 

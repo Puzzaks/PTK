@@ -50,9 +50,12 @@ class StatusPageIncidentsPage extends StatelessWidget {
                         Expanded(
                           child: Text(
                             inc.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
+                        SizedBox(width: 8,),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -161,6 +164,8 @@ class StatusPageMaintenancesPage extends StatelessWidget {
                   children: [
                     Text(
                       maint.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     const SizedBox(height: 8),

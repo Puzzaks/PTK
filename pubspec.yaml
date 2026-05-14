@@ -3,7 +3,7 @@ description: Puzzak's ToolKit
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.1+5
+version: 1.0.2+6
 
 environment:
   sdk: ^3.0.0
@@ -40,6 +40,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/authors.json
+    - assets/data/demo_dictionary.json
     - assets/translations/languages.json
     - assets/translations/en.json
     - assets/translations/uk.json

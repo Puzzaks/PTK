@@ -375,7 +375,6 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                     tooltip: engine.dict.value('delete_server'),
                     onPressed: _confirmDelete,
                   ),
-                if (_isEditing)
                   IconButton(
                     icon: Icon(Icons.save_rounded),
                     tooltip: _isEditing
@@ -458,6 +457,31 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                       ),
                     ),
                   ),
+
+                  if (!_isEditing) ...[
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          clipBehavior: Clip.none,
+                          direction: Axis.horizontal,
+                          children: (engine.dict.demoData['servers'] as List? ?? []).map((item) {
+                            return ActionChip(
+                              avatar: const Icon(Icons.auto_awesome_rounded, size: 16),
+                              label: Text(item['name'] ?? ''),
+                              onPressed: () {
+                                _nameCtrl.text = item['name'] ?? '';
+                                _urlCtrl.text = item['link'] ?? '';
+                                _validateUrl();
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 12),
 

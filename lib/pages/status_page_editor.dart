@@ -233,6 +233,28 @@ class _StatusPageEditorPageState extends State<StatusPageEditorPage> {
                     ),
                   ),
 
+                  if (!_isEditing) ...[
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          children: (engine.dict.demoData['statuspages'] as List? ?? []).map((item) {
+                            return ActionChip(
+                              avatar: const Icon(Icons.auto_awesome_rounded, size: 16),
+                              label: Text(item['name'] ?? ''),
+                              onPressed: () {
+                                _urlCtrl.text = item['link'] ?? '';
+                                _validateUrl();
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 12),
 
                   AnimatedSwitcher(

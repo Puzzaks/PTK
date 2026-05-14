@@ -61,7 +61,10 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
               onPressed: () => Navigator.pop(context),
             ),
           ),
-          title: Text(widget.page.name),
+          title: Text(
+            widget.page.name,
+            overflow: TextOverflow.ellipsis,
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.edit_rounded),
@@ -78,7 +81,7 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
         // Overall Status Banner
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(15, 8, 15, 24),
+            padding: const EdgeInsets.fromLTRB(15, 8, 15, 0),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
@@ -140,7 +143,20 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
             if (currentIncidents.isNotEmpty) {
               slivers.addAll(_buildIncidentList(currentIncidents, title, scheme, engine));
             } else {
-              slivers.add(_buildEmptyCard(engine.dict.value('sp_no_incidents'), context, Icons.check_circle_outline_rounded, engine));
+              slivers.add(
+                  SliverToBoxAdapter(
+                  child: engine.cards.cardGroup([
+                    CardContents.tapIcon(
+                      title: engine.dict.value('sp_no_incidents'),
+                      subtitle: "",
+                      action: (){},
+                      icon: Icons.check_circle_outline_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                    )
+                  ]),
+                )
+              );
             }
             break;
 
@@ -150,7 +166,20 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
             if (currentMaintenances.isNotEmpty) {
               slivers.addAll(_buildMaintenanceList(currentMaintenances, title, scheme, engine));
             } else {
-              slivers.add(_buildEmptyCard(engine.dict.value('sp_no_maintenance_now'), context, Icons.event_available_rounded, engine));
+              slivers.add(
+                  SliverToBoxAdapter(
+                    child: engine.cards.cardGroup([
+                      CardContents.tapIcon(
+                        title: engine.dict.value('sp_no_maintenance_now'),
+                        subtitle: "",
+                        action: (){},
+                        icon: Icons.check_circle_outline_rounded,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      )
+                    ]),
+                  )
+              );
             }
             break;
 
@@ -161,7 +190,20 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
               slivers.addAll(_buildMaintenanceList(upcomingMaintenances, title, scheme, engine));
             } else {
               String emptyText = engine.dict.value('sp_no_upcoming_maintenances').replaceAll('@days', engine.spUpcomingDays.toString());
-              slivers.add(_buildEmptyCard(emptyText, context, Icons.upcoming_rounded, engine));
+              slivers.add(
+                  SliverToBoxAdapter(
+                    child: engine.cards.cardGroup([
+                      CardContents.tapIcon(
+                        title: engine.dict.value('sp_no_upcoming_maintenances_title'),
+                        subtitle: emptyText,
+                        action: (){},
+                        icon: Icons.check_circle_outline_rounded,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        colorBG: Theme.of(context).colorScheme.tertiaryContainer,
+                      )
+                    ]),
+                  )
+              );
             }
             break;
 
@@ -192,63 +234,66 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   sliver: SliverToBoxAdapter(
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: components.map((comp) {
-                        final isOperational = comp.status == ComponentStatus.operational;
-                        Widget chip = Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: scheme.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: scheme.outlineVariant),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: isOperational ? Colors.green : scheme.error,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                engine.spShortener.format(comp.name),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: scheme.onSurface,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-
-                        if (comp.description != null && comp.description!.trim().isNotEmpty) {
-                          return Tooltip(
-                            message: comp.description!.trim(),
-                            preferBelow: false,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
-                            showDuration: const Duration(seconds: 4),
-                            textStyle: TextStyle(
-                              color: scheme.onInverseSurface,
-                              fontSize: 14,
-                            ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: components.map((comp) {
+                          final isOperational = comp.status == ComponentStatus.operational;
+                          Widget chip = Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: scheme.inverseSurface,
-                              borderRadius: BorderRadius.circular(12),
+                              color: scheme.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: scheme.outlineVariant),
                             ),
-                            triggerMode: TooltipTriggerMode.tap,
-                            child: chip,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: isOperational ? Colors.green : scheme.error,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  comp.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: scheme.onSurface,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
-                        }
-                        return chip;
-                      }).toList(),
+
+                          if (comp.description != null && comp.description!.trim().isNotEmpty) {
+                            return Tooltip(
+                              message: comp.description!.trim(),
+                              preferBelow: false,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              showDuration: const Duration(seconds: 4),
+                              textStyle: TextStyle(
+                                color: scheme.onInverseSurface,
+                                fontSize: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: scheme.inverseSurface,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              triggerMode: TooltipTriggerMode.tap,
+                              child: chip,
+                            );
+                          }
+                          return chip;
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
@@ -309,8 +354,8 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
   }
 
   List<Widget> _buildIncidentList(List<SPIncident> incidents, String title, ColorScheme scheme, AppEngine engine) {
-    final showMore = incidents.length > 3;
-    final displayList = incidents.take(3).toList();
+    final showMore = incidents.length > 1;
+    final displayList = incidents.take(1).toList();
 
     return [
       SliverPadding(
@@ -341,9 +386,12 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
                         Expanded(
                           child: Text(
                             inc.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
+                        SizedBox(width: 8,),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -374,13 +422,24 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
                       const SizedBox(height: 8),
                       Text(
                         latestUpdate.body,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: scheme.onSurface, fontSize: 14),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        timeago.format(latestUpdate.createdAt),
-                        style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            timeago.format(latestUpdate.createdAt),
+                            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+                          ),
+                          Text(
+                            engine.dict.value("sp_section_current_incidents_more"),
+                            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+                          ),
+                        ],
+                      )
                     ],
                   ],
                 ),
@@ -411,8 +470,8 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
   }
 
   List<Widget> _buildMaintenanceList(List<SPMaintenance> maintenances, String title, ColorScheme scheme, AppEngine engine) {
-    final showMore = maintenances.length > 3;
-    final displayList = maintenances.take(3).toList();
+    final showMore = maintenances.length > 1;
+    final displayList = maintenances.take(1).toList();
 
     return [
       SliverPadding(
@@ -440,6 +499,8 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
                       children: [
                         Text(
                           maint.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
@@ -462,6 +523,8 @@ class _StatusPageDetailPageState extends State<StatusPageDetailPage> {
                           const SizedBox(height: 8),
                           Text(
                             latestUpdate.body,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(color: scheme.onSurface, fontSize: 14),
                           ),
                         ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:PTK/engine.dart';
 import 'package:PTK/models/status_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:url_launcher/url_launcher.dart';
 
 class StatusPageUpdatesPage extends StatelessWidget {
   final String title;
@@ -135,7 +137,7 @@ class StatusPageUpdatesPage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${update.createdAt.day.toString().padLeft(2, '0')}/${update.createdAt.month.toString().padLeft(2, '0')}/${update.createdAt.year} ${update.createdAt.hour.toString().padLeft(2, '0')}:${update.createdAt.minute.toString().padLeft(2, '0')}',
+                            '${update.createdAt.day.toString().padLeft(2, '0')}.${update.createdAt.month.toString().padLeft(2, '0')}.${update.createdAt.year} ${update.createdAt.hour.toString().padLeft(2, '0')}:${update.createdAt.minute.toString().padLeft(2, '0')}',
                             style: TextStyle(
                               color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
                               fontSize: 11,
@@ -145,55 +147,68 @@ class StatusPageUpdatesPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    update.body,
-                    style: TextStyle(
-                      color: scheme.onSurface,
-                      fontSize: 15,
+                  const SizedBox(height: 5),
+                  MarkdownBody(
+                    data: update.body,
+                    selectable: true,
+                    shrinkWrap: true,
+                    onTapLink: (String text, String? href, String title) async {
+                      await launchUrl(
+                          Uri.parse(href!),
+                          mode: LaunchMode.externalApplication
+                      );
+                    },
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(fontSize: 16),
                     ),
                   ),
+                  const SizedBox(height: 12),
                   if (changedComponents.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: changedComponents.map((c) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: scheme.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: scheme.outlineVariant),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                engine.spShortener.format(c.name),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                  color: scheme.onSurface,
-                                ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Container(
+                        height: 32,
+                        child: Wrap(
+                          spacing: 8,
+                          direction: Axis.horizontal,
+                          children: changedComponents.map((c) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: scheme.outlineVariant),
                               ),
-                              const SizedBox(width: 6),
-                              Icon(Icons.arrow_forward_rounded, size: 12, color: scheme.onSurfaceVariant),
-                              const SizedBox(width: 6),
-                              Text(
-                                engine.spShortener.truncate(_getComponentStatusLabel(c.newStatus, engine)),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: c.newStatus == ComponentStatus.operational 
-                                    ? Colors.green 
-                                    : scheme.error,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    c.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      color: scheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Icon(Icons.arrow_forward_rounded, size: 12, color: scheme.onSurfaceVariant),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _getComponentStatusLabel(c.newStatus, engine),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      color: c.newStatus == ComponentStatus.operational
+                                          ? Colors.green
+                                          : scheme.error,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   ],
                 ],

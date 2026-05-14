@@ -136,7 +136,6 @@ class _ServerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final engine    = Provider.of<AppEngine>(context, listen: false);
     const cardROuter = Radius.circular(20);
     const cardRInner = Radius.circular(5);
     final scheme    = Theme.of(context).colorScheme;
