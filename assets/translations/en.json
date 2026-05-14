@@ -121,6 +121,8 @@
 
   "no_statuspages": "No Statuspages",
   "no_statuspages_hint": "Tap below to add your first Statuspage",
+  "no_statuspages_tap": "No Statuspages",
+  "no_statuspages_tap_hint": "Tap below to add your first Statuspage",
   "add_statuspage": "Add Statuspage",
   "manage_statuspages": "Manage Statuspages",
   "statuspage_url_label": "Statuspage URL",
