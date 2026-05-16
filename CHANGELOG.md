@@ -1,4 +1,4 @@
-## Update 1.0.4
+## Update 1.0.4 (Play Store's 1.0.5)
 #### Changes
 - Updated notification channels names and descriptions.
 - Updated notification channels, separate channels for:
