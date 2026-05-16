@@ -4,15 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart' as md;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:PTK/pages/support/elements.dart';
-import 'package:PTK/parts/translator.dart';
-import 'package:PTK/parts/sp_shortener.dart';
-import 'package:PTK/storage/analytics_service.dart';
-import 'package:PTK/models/server_watcher.dart';
-import 'package:PTK/models/server_telemetry.dart';
-import 'package:PTK/models/status_page.dart';
+import 'package:ptk/pages/support/elements.dart';
+import 'package:ptk/parts/translator.dart';
+import 'package:ptk/parts/sp_shortener.dart';
+import 'package:ptk/storage/analytics_service.dart';
+import 'package:ptk/models/server_watcher.dart';
+import 'package:ptk/models/server_telemetry.dart';
+import 'package:ptk/models/status_page.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:PTK/services/background_monitor.dart';
+import 'package:ptk/services/background_monitor.dart';
+import 'package:ptk/services/notification_service.dart';
 
 // ─── TelemetryData (kept for chart compatibility) ────────
 class TelemetryData {
@@ -32,7 +33,7 @@ class AppEngine with md.ChangeNotifier {
 
   Dictionary dict = Dictionary(
     path: 'assets/translations',
-    url: 'https://raw.githubusercontent.com/Puzzak/PTK/refs/heads/android',
+    url: 'https://raw.githubusercontent.com/Puzzaks/PTK/refs/heads/android',
   );
   
   ComponentShortener spShortener = ComponentShortener();
@@ -56,15 +57,19 @@ class AppEngine with md.ChangeNotifier {
       _telemetry.putIfAbsent(id, ServerTelemetry.new);
 
   // ── Visibility tracking ───────────────────────────────────
-  final Set<String> _visibleServerIds = {};
+  // Key: server id, Value: number of active viewers (cards, detail pages, etc)
+  final Map<String, int> _serverVisibilityRefs = {};
 
   void setServerVisible(String id, bool visible) {
+    final current = _serverVisibilityRefs[id] ?? 0;
     if (visible) {
-      _visibleServerIds.add(id);
+      _serverVisibilityRefs[id] = current + 1;
     } else {
-      _visibleServerIds.remove(id);
+      _serverVisibilityRefs[id] = (current - 1).clamp(0, 1000);
     }
   }
+
+  bool _isServerVisible(String id) => (_serverVisibilityRefs[id] ?? 0) > 0;
 
   // ── Status Pages ──────────────────────────────────────────
   List<StatusPage> _statusPages = [];
@@ -225,9 +230,58 @@ class AppEngine with md.ChangeNotifier {
       _restartBgService();
     }
 
+    // Initialize/refresh localized notification channels
+    await refreshNotificationChannels();
+
     await logger.log('init', 'info', 'App started');
     appStarted = true;
     notifyListeners();
+  }
+
+  /// Updates the application language and refreshes all localized components.
+  Future<void> updateLanguage(String langId) async {
+    await dict.saveLanguage(langId);
+    await refreshNotificationChannels();
+    notifyListeners();
+  }
+
+  /// Refreshes the notification channels and background service metadata with the current language.
+  Future<void> refreshNotificationChannels() async {
+    // Update the notification service channels
+    await NotificationService.instance.createChannels(
+      serviceName:       dict.value('bg_notification_channel_service'),
+      serviceDesc:       dict.value('bg_notification_channel_service_desc'),
+      serverOfflineName: dict.value('bg_notification_channel_server_offline'),
+      serverOfflineDesc: dict.value('bg_notification_channel_server_offline_desc'),
+      serverOnlineName:  dict.value('bg_notification_channel_server_online'),
+      serverOnlineDesc:  dict.value('bg_notification_channel_server_online_desc'),
+      incidentName:      dict.value('bg_notification_channel_incidents'),
+      incidentDesc:      dict.value('bg_notification_channel_incidents_desc'),
+      resolvedName:      dict.value('bg_notification_channel_resolved'),
+      resolvedDesc:      dict.value('bg_notification_channel_resolved_desc'),
+    );
+
+    // Sync localized strings to background task storage
+    await FlutterForegroundTask.saveData(key: 'lang_notif_title', value: dict.value('app_name'));
+    await FlutterForegroundTask.saveData(key: 'lang_notif_pause', value: dict.value('bg_monitoring_paused'));
+    await FlutterForegroundTask.saveData(key: 'lang_notif_all_ok', value: dict.value('bg_monitoring_all_ok'));
+    await FlutterForegroundTask.saveData(key: 'lang_notif_servers', value: dict.value('servers').toLowerCase());
+    await FlutterForegroundTask.saveData(key: 'lang_notif_pages', value: dict.value('status_pages').toLowerCase());
+    await FlutterForegroundTask.saveData(key: 'lang_notif_active_incidents', value: dict.value('bg_monitoring_active_incidents'));
+    
+    // Notification body templates
+    await FlutterForegroundTask.saveData(key: 'lang_body_offline',  value: dict.value('bg_notification_server_offline'));
+    await FlutterForegroundTask.saveData(key: 'lang_body_online',   value: dict.value('bg_notification_server_online'));
+    await FlutterForegroundTask.saveData(key: 'lang_body_incident', value: dict.value('bg_notification_incident'));
+    await FlutterForegroundTask.saveData(key: 'lang_body_resolved', value: dict.value('bg_notification_incident_resolved'));
+
+    // Titles for specific alerts
+    await FlutterForegroundTask.saveData(key: 'lang_title_offline', value: dict.value('bg_notification_title_server_offline'));
+    await FlutterForegroundTask.saveData(key: 'lang_title_online',  value: dict.value('bg_notification_title_server_online'));
+    await FlutterForegroundTask.saveData(key: 'lang_title_incident', value: dict.value('bg_notification_title_incident'));
+    await FlutterForegroundTask.saveData(key: 'lang_title_resolved', value: dict.value('bg_notification_title_resolved'));
+
+    // If service is running, it will pick up these changes on the next tick
   }
 
   // ── Demo seeding (called from intro) ──────────────────────
@@ -311,7 +365,7 @@ class AppEngine with md.ChangeNotifier {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'ptk_service',
-        channelName: 'Background Service',
+        channelName: dict.value('bg_notification_channel_service'),
         channelDescription: 'Persistent notification while background monitoring is active',
         onlyAlertOnce: true,
       ),
@@ -389,10 +443,10 @@ class AppEngine with md.ChangeNotifier {
 
   // ── Fetching ──────────────────────────────────────────────
   Future<void> _fetchAll() async {
-    // Only fetch visible servers
-    if (_visibleServerIds.isEmpty) return;
+    // Only fetch servers that have at least one active viewer
+    final targets = _servers.where((s) => _isServerVisible(s.id)).toList();
+    if (targets.isEmpty) return;
 
-    final targets = _servers.where((s) => _visibleServerIds.contains(s.id)).toList();
     await Future.wait(targets.map(fetchDataFor));
   }
 
@@ -665,7 +719,7 @@ class AppEngine with md.ChangeNotifier {
   Future<void> deleteServer(String id) async {
     _servers.removeWhere((s) => s.id == id);
     _telemetry.remove(id);
-    _visibleServerIds.remove(id);
+    _serverVisibilityRefs.remove(id);
     // Re-index orders
     for (int i = 0; i < _servers.length; i++) {
       _servers[i].order = i;

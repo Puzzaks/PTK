@@ -1,16 +1,16 @@
 import 'dart:math';
-import 'package:PTK/pages/support/elements.dart';
+import 'package:ptk/pages/support/elements.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/server_watcher.dart';
-import 'package:PTK/models/server_telemetry.dart';
-import 'package:PTK/pages/server_detail.dart';
-import 'package:PTK/pages/server_editor.dart';
-import 'package:PTK/pages/statuspage.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/server_watcher.dart';
+import 'package:ptk/models/server_telemetry.dart';
+import 'package:ptk/pages/server_detail.dart';
+import 'package:ptk/pages/server_editor.dart';
+import 'package:ptk/pages/statuspage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

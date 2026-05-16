@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/server_watcher.dart';
-import 'package:PTK/pages/support/elements.dart';
-import 'package:PTK/pages/server_editor.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/server_watcher.dart';
+import 'package:ptk/pages/support/elements.dart';
+import 'package:ptk/pages/server_editor.dart';
 
 class ServersPage extends StatefulWidget {
   const ServersPage({super.key});

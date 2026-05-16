@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/pages/support/elements.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/pages/support/elements.dart';
 
-import 'package:PTK/pages/settings_servers.dart';
-import 'package:PTK/pages/settings_statuspages.dart';
+import 'package:ptk/pages/settings_servers.dart';
+import 'package:ptk/pages/settings_statuspages.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -68,8 +68,7 @@ class SettingsPage extends StatelessWidget {
                                     subtitle: language['name'] == language['origin'] ? '' : language['name'],
                                     action: () async {
                                       final nav = Navigator.of(dialogContext);
-                                      await engine.dict.saveLanguage(language['id']);
-                                      engine.genericRefresh();
+                                      await engine.updateLanguage(language['id']);
                                       nav.pop();
                                     },
                                   );

@@ -2,22 +2,47 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/server_watcher.dart';
-import 'package:PTK/models/server_telemetry.dart';
-import 'package:PTK/pages/server_editor.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/server_watcher.dart';
+import 'package:ptk/models/server_telemetry.dart';
+import 'package:ptk/pages/server_editor.dart';
 
 /// Full telemetry dashboard for a single [ServerWatcher].
-class ServerDetailPage extends StatelessWidget {
+class ServerDetailPage extends StatefulWidget {
   final ServerWatcher server;
   const ServerDetailPage({super.key, required this.server});
+
+  @override
+  State<ServerDetailPage> createState() => _ServerDetailPageState();
+}
+
+class _ServerDetailPageState extends State<ServerDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Register visibility on the next frame to ensure engine is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<AppEngine>(context, listen: false)
+            .setServerVisible(widget.server.id, true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Unregister visibility
+    Provider.of<AppEngine>(context, listen: false)
+        .setServerVisible(widget.server.id, false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppEngine>(builder: (context, engine, _) {
       final current = engine.servers.firstWhere(
-        (s) => s.id == server.id,
-        orElse: () => server,
+        (s) => s.id == widget.server.id,
+        orElse: () => widget.server,
       );
       final telem       = engine.telemetryFor(current.id);
       final primaryColor = Theme.of(context).colorScheme.primary;

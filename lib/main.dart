@@ -3,20 +3,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/services/notification_service.dart';
-import 'package:PTK/pages/home.dart';
-import 'package:PTK/pages/intro.dart';
-import 'package:PTK/pages/settings.dart';
-import 'package:PTK/pages/about.dart';
-import 'package:PTK/pages/servers.dart';
-import 'package:PTK/pages/server_editor.dart';
-import 'package:PTK/pages/status_page_editor.dart';
-import 'package:PTK/pages/status_page_detail.dart';
-import 'package:PTK/pages/status_page_lists.dart';
-import 'package:PTK/pages/status_page_updates.dart';
-import 'package:PTK/pages/status_pages_manager.dart';
-import 'package:PTK/pages/support/elements.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/services/notification_service.dart';
+import 'package:ptk/pages/home.dart';
+import 'package:ptk/pages/intro.dart';
+import 'package:ptk/pages/settings.dart';
+import 'package:ptk/pages/about.dart';
+import 'package:ptk/pages/servers.dart';
+import 'package:ptk/pages/server_editor.dart';
+import 'package:ptk/pages/status_page_editor.dart';
+import 'package:ptk/pages/status_page_detail.dart';
+import 'package:ptk/pages/status_page_lists.dart';
+import 'package:ptk/pages/status_page_updates.dart';
+import 'package:ptk/pages/status_pages_manager.dart';
+import 'package:ptk/pages/support/elements.dart';
 
 // ---------------------------------------------------------------------------
 // PTK v2 — Entry Point

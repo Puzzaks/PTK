@@ -15,6 +15,7 @@ void startMonitorCallback() {
 /// Runs in its own isolate — no access to AppEngine or UI.
 /// Reads config directly from Hive and uses FlutterForegroundTask storage.
 class MonitorTaskHandler extends TaskHandler {
+  bool _isTicking = false;
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
@@ -48,20 +49,10 @@ class MonitorTaskHandler extends TaskHandler {
   }
 
   Future<void> _runTick() async {
-    try {
-      // Step 1: Internet check
-      final online = await _checkInternet();
-      if (!online) {
-        await FlutterForegroundTask.updateService(
-          notificationTitle: 'PTK Monitoring',
-          notificationText: 'No internet — monitoring paused',
-          notificationIcon: const NotificationIcon(
-            metaDataName: 'page.puzzak.ptk.NOTIFICATION_ICON',
-          ),
-        );
-        return;
-      }
+    if (_isTicking) return;
+    _isTicking = true;
 
+    try {
       // Step 2: Reload config from Hive & Task Data
       final box = Hive.box('app_storage');
       
@@ -75,6 +66,27 @@ class MonitorTaskHandler extends TaskHandler {
                         box.get('bg_monitor_enabled', defaultValue: false) as bool;
       final bgDefault  = await FlutterForegroundTask.getData<bool>(key: 'bg_default') ?? 
                         box.get('bg_monitor_default', defaultValue: true) as bool;
+
+      // Localized strings
+      final langNotifTitle = await FlutterForegroundTask.getData<String>(key: 'lang_notif_title') ?? 'PTK Monitoring';
+      final langNotifPause = await FlutterForegroundTask.getData<String>(key: 'lang_notif_pause') ?? 'No internet — monitoring paused';
+      final langNotifAllOk = await FlutterForegroundTask.getData<String>(key: 'lang_notif_all_ok') ?? 'All OK';
+      final langNotifServers = await FlutterForegroundTask.getData<String>(key: 'lang_notif_servers') ?? 'servers';
+      final langNotifPages = await FlutterForegroundTask.getData<String>(key: 'lang_notif_pages') ?? 'pages';
+      final langNotifActiveIncidents = await FlutterForegroundTask.getData<String>(key: 'lang_notif_active_incidents') ?? '@count active incidents';
+
+      // Internet check
+      final online = await _checkInternet();
+      if (!online) {
+        await FlutterForegroundTask.updateService(
+          notificationTitle: langNotifPause,
+          notificationText: langNotifTitle,
+          notificationIcon: const NotificationIcon(
+            metaDataName: 'page.puzzak.ptk.NOTIFICATION_ICON',
+          ),
+        );
+        return;
+      }
 
       if (!bgEnabled) return;
 
@@ -133,7 +145,7 @@ class MonitorTaskHandler extends TaskHandler {
 
           for (final oldId in previousIds) {
             if (!currentIds.contains(oldId)) {
-              await _showIncidentResolved(spId, spName, oldId, 'Incident resolved');
+              await _showIncidentResolved(spId, spName, oldId, 'Resolved');
             }
           }
 
@@ -144,19 +156,26 @@ class MonitorTaskHandler extends TaskHandler {
 
       // Step 5: Update persistent notification
       final parts = <String>[];
-      parts.add('$serversMonitored servers, $pagesMonitored pages');
+      parts.add('$serversMonitored $langNotifServers, $pagesMonitored $langNotifPages');
+      
+      String status;
       if (serversOffline > 0 || activeIncidents > 0) {
         final issues = <String>[];
-        if (serversOffline > 0) issues.add('$serversOffline offline');
-        if (activeIncidents > 0) issues.add('$activeIncidents incidents');
-        parts.add('⚠ ${issues.join(', ')}');
+        if (serversOffline > 0) {
+          final langNotifOffline = await FlutterForegroundTask.getData<String>(key: 'lang_notif_offline') ?? 'offline';
+          issues.add('$serversOffline $langNotifOffline');
+        }
+        if (activeIncidents > 0) {
+          issues.add(langNotifActiveIncidents.replaceAll('@count', activeIncidents.toString()));
+        }
+        status = '⚠ ${issues.join(', ')}';
       } else {
-        parts.add('All OK');
+        status = langNotifAllOk;
       }
 
       await FlutterForegroundTask.updateService(
-        notificationTitle: 'PTK Monitoring',
-        notificationText: parts.join(' • '),
+        notificationTitle: '${parts.join(' • ')} • $status',
+        notificationText: langNotifTitle,
         notificationIcon: const NotificationIcon(
           metaDataName: 'page.puzzak.ptk.NOTIFICATION_ICON',
         ),
@@ -164,13 +183,17 @@ class MonitorTaskHandler extends TaskHandler {
 
       await _saveStates();
     } catch (e) {
+      final langNotifTitle = await FlutterForegroundTask.getData<String>(key: 'lang_notif_title') ?? 'PTK Monitoring';
+      final langNotifError = await FlutterForegroundTask.getData<String>(key: 'lang_notif_error') ?? 'Error';
       await FlutterForegroundTask.updateService(
-        notificationTitle: 'PTK Monitoring',
-        notificationText: 'Error: ${e.toString().substring(0, 50)}',
+        notificationTitle: '$langNotifError: ${e.toString().substring(0, 50)}',
+        notificationText: langNotifTitle,
         notificationIcon: const NotificationIcon(
           metaDataName: 'page.puzzak.ptk.NOTIFICATION_ICON',
         ),
       );
+    } finally {
+      _isTicking = false;
     }
   }
 
@@ -253,15 +276,18 @@ class MonitorTaskHandler extends TaskHandler {
   // ── Notification helpers ─────────────────────────────────
 
   Future<void> _showServerOffline(String serverId, String serverName) async {
+    if (!await _checkInternet()) return;
+    final title = await FlutterForegroundTask.getData<String>(key: 'lang_title_offline') ?? '⚠ Server Offline';
+    final bodyTemplate = await FlutterForegroundTask.getData<String>(key: 'lang_body_offline') ?? '@name is offline';
+
     await _notifications.show(
       serverId.hashCode,
-      '⚠ Server Offline',
-      '$serverName is offline',
+      title,
+      bodyTemplate.replaceAll('@name', serverName),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'ptk_alerts',
-          'Monitoring Alerts',
-          channelDescription: 'Notifications for server outages and service incidents',
+          'ptk_server_offline',
+          'Server Offline Alerts',
           importance: Importance.high,
           priority: Priority.high,
           icon: '@drawable/ic_launcher_foreground',
@@ -272,17 +298,20 @@ class MonitorTaskHandler extends TaskHandler {
   }
 
   Future<void> _showServerOnline(String serverId, String serverName) async {
+    if (!await _checkInternet()) return;
+    final title = await FlutterForegroundTask.getData<String>(key: 'lang_title_online') ?? '✓ Server Online';
+    final bodyTemplate = await FlutterForegroundTask.getData<String>(key: 'lang_body_online') ?? '@name is back online';
+    
     await _notifications.show(
       serverId.hashCode,
-      '✓ Server Online',
-      '$serverName is back online',
+      title,
+      bodyTemplate.replaceAll('@name', serverName),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'ptk_alerts',
-          'Monitoring Alerts',
-          channelDescription: 'Notifications for server outages and service incidents',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
+          'ptk_server_online',
+          'Server Online Alerts',
+          importance: Importance.low,
+          priority: Priority.low,
           icon: '@drawable/ic_launcher_foreground',
         ),
       ),
@@ -293,15 +322,17 @@ class MonitorTaskHandler extends TaskHandler {
   Future<void> _showIncidentAlert(
     String spId, String spName, String incidentId, String incidentName,
   ) async {
+    if (!await _checkInternet()) return;
+    final titleTemplate = await FlutterForegroundTask.getData<String>(key: 'lang_body_incident') ?? 'Incident: @name';
+
     await _notifications.show(
       '$spId:$incidentId'.hashCode,
-      '⚠ Incident on $spName',
+      titleTemplate.replaceAll('@name', spName),
       incidentName,
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'ptk_alerts',
-          'Monitoring Alerts',
-          channelDescription: 'Notifications for server outages and service incidents',
+          'ptk_incidents',
+          'Service Incident Alerts',
           importance: Importance.high,
           priority: Priority.high,
           icon: '@drawable/ic_launcher_foreground',
@@ -314,17 +345,19 @@ class MonitorTaskHandler extends TaskHandler {
   Future<void> _showIncidentResolved(
     String spId, String spName, String incidentId, String incidentName,
   ) async {
+    if (!await _checkInternet()) return;
+    final titleTemplate = await FlutterForegroundTask.getData<String>(key: 'lang_body_resolved') ?? 'Resolved: @name';
+
     await _notifications.show(
       '$spId:$incidentId'.hashCode,
-      '✓ Resolved on $spName',
+      titleTemplate.replaceAll('@name', spName),
       incidentName,
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'ptk_alerts',
-          'Monitoring Alerts',
-          channelDescription: 'Notifications for server outages and service incidents',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
+          'ptk_resolved',
+          'Incident Resolved Alerts',
+          importance: Importance.low,
+          priority: Priority.low,
           icon: '@drawable/ic_launcher_foreground',
         ),
       ),

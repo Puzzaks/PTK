@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/status_page.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/status_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -166,7 +166,7 @@ class StatusPageUpdatesPage extends StatelessWidget {
                   if (changedComponents.isNotEmpty) ...[
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Container(
+                      child: SizedBox(
                         height: 32,
                         child: Wrap(
                           spacing: 8,

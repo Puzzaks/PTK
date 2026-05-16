@@ -1,9 +1,9 @@
-name: PTK
+name: ptk
 description: Puzzak's ToolKit
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.2+6
+version: 1.0.3+8
 
 environment:
   sdk: ^3.0.0

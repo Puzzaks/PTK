@@ -1,8 +1,8 @@
-import 'package:PTK/pages/support/elements.dart';
+import 'package:ptk/pages/support/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/status_page.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/status_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StatuspagePage extends StatelessWidget {

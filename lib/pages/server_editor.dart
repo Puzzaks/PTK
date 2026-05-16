@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:PTK/engine.dart';
-import 'package:PTK/models/server_watcher.dart';
-import 'package:PTK/models/server_telemetry.dart';
-import 'package:PTK/pages/support/elements.dart';
+import 'package:ptk/engine.dart';
+import 'package:ptk/models/server_watcher.dart';
+import 'package:ptk/models/server_telemetry.dart';
+import 'package:ptk/pages/support/elements.dart';
 
 /// Page for creating a new server watcher or editing an existing one.
 class ServerEditorPage extends StatefulWidget {
@@ -594,7 +594,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                         title: engine.dict.value('card_graph'),
                         subtitle: _graphStat?.label ?? '',
                         action: _showGraphPicker,
-                        icon: Icons.show_chart_rounded,
+                        icon: Icons.area_chart_rounded,
                         color: Theme.of(context).colorScheme.onTertiaryContainer,
                         colorBG: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
