@@ -26,7 +26,7 @@
 ### Features
  - **Basic Ping**: Monitor any website or server endpoint.
  - **Full Telemetry**: Uptime, CPU load, SoC temperature, RAM usage, and network throughput using [AIO.php](https://github.com/Puzzak/AIO-Monitor).
- - **Status Page Aggregator**: Monitor Atlassian-powered status pages (see examples [here](assets/statuspage/component_dictionary.json)) in one place.
+ - **Status Page Aggregator**: Monitor Atlassian-powered status pages (see examples [here](/assets/data/demo_dictionary.json)) in one place.
  - **Background Alerts**: Get notified immediately when your servers become offline or service incidents are reported.
  - **Material You (MD3)**: Modern interface with dynamic color support that adapts to your phone's system colors.
 
