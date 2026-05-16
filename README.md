@@ -7,14 +7,13 @@
     <img src="https://img.shields.io/github/v/release/Puzzak/PTK?style=flat-square" height="20" alt="Latest Release"></a>
   <a href="https://github.com/Puzzak/PTK/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/Puzzak/PTK?style=flat-square" height="20" alt="License"></a>
- 
-
+  <br>
   <!-- Download Buttons -->
   <a href="https://play.google.com/store/apps/details?id=page.puzzak.ptk">
-    <img src=".assets/PlayStoreButton.png" height="50" alt="Get it on Google Play" />
+    <img src=".assets/PlayStoreButton.png"alt="Get it on Google Play" />
   </a>
   <a href="https://github.com/Puzzak/PTK/releases/latest">
-    <img src=".assets/GHButton.png" height="50" alt="Download on GitHub" />
+    <img src=".assets/GHButton.png"alt="Download on GitHub" />
   </a>
 
 
