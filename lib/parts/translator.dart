@@ -108,7 +108,10 @@ class Dictionary {
       try {
         if (log != null) await log("dict", "info", "Fetching languages from $url/$path/languages.json");
         final response = await http.get(Uri.parse("$url/$path/languages.json"));
+        print("$url/$path/languages.json");
         if(response.statusCode == 200) {
+          print("$url/$path/languages.json received");
+          print(jsonDecode(response.body));
           if (log != null) await log("dict", "info", "Language list fetched successfully");
           languages = jsonDecode(response.body);
           box.put("cached_languages_json", response.body); // Update persistent cache
@@ -119,7 +122,9 @@ class Dictionary {
           for (int i = 0; i < languages.length; i++) {
             String langId = languages[i]["id"];
             final languageGet = await http.get(Uri.parse("$url/$path/$langId.json"));
+            print("$url/$path/$langId.json");
             if (languageGet.statusCode == 200) {
+              print(jsonDecode(languageGet.body));
               if (log != null) await log("dict", "info", "Downloaded dictionary for $langId");
               dictionary[langId] = jsonDecode(languageGet.body);
               box.put("cached_dict_$langId", languageGet.body); // Update persistent cache
