@@ -75,7 +75,7 @@ class SettingsServersPage extends StatelessWidget {
                   cards.cardGroup([
                     CardContents.tapIcon(
                       title: engine.dict.value('card_graph'),
-                      subtitle: engine.defaultGraphStat.label,
+                      subtitle: engine.dict.value(engine.defaultGraphStat.label),
                       icon: Icons.area_chart_rounded,
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
                       colorBG: Theme.of(context).colorScheme.tertiaryContainer,
@@ -83,7 +83,7 @@ class SettingsServersPage extends StatelessWidget {
                     ),
                     CardContents.tapIcon(
                       title: engine.dict.value('card_stat1'),
-                      subtitle: engine.defaultTextStat1?.label ?? engine.dict.value('nothing'),
+                      subtitle: engine.defaultTextStat1 != null ? engine.dict.value(engine.defaultTextStat1!.label) : engine.dict.value('nothing'),
                       icon: Icons.align_horizontal_left_rounded,
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
                       colorBG: Theme.of(context).colorScheme.tertiaryContainer,
@@ -94,7 +94,7 @@ class SettingsServersPage extends StatelessWidget {
                     ),
                     CardContents.tapIcon(
                       title: engine.dict.value('card_stat2'),
-                      subtitle: engine.defaultTextStat2?.label ?? engine.dict.value('nothing'),
+                      subtitle: engine.defaultTextStat2 != null ? engine.dict.value(engine.defaultTextStat2!.label) : engine.dict.value('nothing'),
                       icon: Icons.align_horizontal_right_rounded,
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
                       colorBG: Theme.of(context).colorScheme.tertiaryContainer,
@@ -126,6 +126,7 @@ class SettingsServersPage extends StatelessWidget {
                         for (int i = 0; i < engine.defaultGraphOrder.length; i++)
                           _GraphOrderTile(
                             key: ValueKey(engine.defaultGraphOrder[i]),
+                            name: engine.dict.value(engine.defaultGraphOrder[i].label),
                             graph: engine.defaultGraphOrder[i],
                             index: i,
                           ),
@@ -152,47 +153,193 @@ class SettingsServersPage extends StatelessWidget {
   }
 
   void _showStatPicker(BuildContext context, AppEngine engine, String titleKey, ServerStat? current, void Function(ServerStat?) onSelect) {
-    showDialog(
+    final scheme = Theme.of(context).colorScheme;
+    final cards  = Cards(context: context);
+
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(engine.dict.value(titleKey)),
-        content: SingleChildScrollView(
-          child: engine.cards.cardGroup([
-            CardContents.halfTap(
-              title: engine.dict.value('nothing'),
-              subtitle: '',
-              action: () { onSelect(null); Navigator.pop(ctx); },
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetCtx) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.92,
+        expand: false,
+        builder: (_, scrollCtrl) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
-            ...ServerStat.values.map((stat) => CardContents.halfTap(
-              title: stat.label,
-              subtitle: '',
-              action: () { onSelect(stat); Navigator.pop(ctx); },
-            )),
-          ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Text(
+                engine.dict.value(titleKey),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  cards.cardGroup([
+                    _StatOption(
+                      title: engine.dict.value('nothing'),
+                      subtitle: engine.dict.value('nothing_subtitle'),
+                      isSelected: current == null,
+                      scheme: scheme,
+                      onTap: () {
+                        onSelect(null);
+                        Navigator.pop(sheetCtx);
+                      },
+                    ),
+                    ...ServerStat.values.map((stat) => _StatOption(
+                      title: engine.dict.value(stat.label),
+                      subtitle: '',
+                      isSelected: current == stat,
+                      scheme: scheme,
+                      onTap: () {
+                        onSelect(stat);
+                        Navigator.pop(sheetCtx);
+                      },
+                    )),
+                  ]),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   void _showGraphPicker(BuildContext context, AppEngine engine) {
-    showDialog(
+    final scheme = Theme.of(context).colorScheme;
+    final cards  = Cards(context: context);
+
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(engine.dict.value('card_graph')),
-        content: SingleChildScrollView(
-          child: Container(
-            child: engine.cards.cardGroup(
-              GraphStat.values.map((stat) => CardContents.halfTap(
-                title: stat.label,
-                subtitle: '',
-                action: () {
-                  engine.defaultGraphStat = stat;
-                  _save(engine);
-                  Navigator.pop(ctx);
-                },
-              )).toList().cast<Widget>(),
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetCtx) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.35,
+        maxChildSize: 0.85,
+        expand: false,
+        builder: (_, scrollCtrl) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Text(
+                engine.dict.value('card_graph'),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  cards.cardGroup([
+                    ...GraphStat.values.map((stat) => _StatOption(
+                      title: engine.dict.value(stat.label),
+                      subtitle: '',
+                      isSelected: engine.defaultGraphStat == stat,
+                      scheme: scheme,
+                      onTap: () {
+                        engine.defaultGraphStat = stat;
+                        _save(engine);
+                        Navigator.pop(sheetCtx);
+                      },
+                    )),
+                  ]),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatOption extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final ColorScheme scheme;
+  final VoidCallback onTap;
+
+  const _StatOption({
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.scheme,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: isSelected ? scheme.primary : scheme.onSurfaceVariant,
+              size: 24,
+            ),
+          ],
         ),
       ),
     );
@@ -200,10 +347,11 @@ class SettingsServersPage extends StatelessWidget {
 }
 
 class _GraphOrderTile extends StatelessWidget {
+  final String name;
   final DetailGraph graph;
   final int index;
 
-  const _GraphOrderTile({super.key, required this.graph, required this.index});
+  const _GraphOrderTile({super.key, required this.name, required this.graph, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +364,7 @@ class _GraphOrderTile extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                graph.label,
+                name,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: scheme.onSurface),
               ),
             ),

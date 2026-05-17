@@ -245,7 +245,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                     ...ServerStat.values.map((stat) {
                       final example = engine.statString(stat, telem);
                       return _StatOption(
-                        title: stat.label,
+                        title: engine.dict.value(stat.label),
                         subtitle: '${engine.dict.value('example_prefix')}$example',
                         isSelected: current == stat,
                         scheme: scheme,
@@ -323,7 +323,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                         case GraphStat.netOut:  example = engine.formatBytes(telem.netOut, isThroughput: true); break;
                       }
                       return _StatOption(
-                        title: stat.label,
+                        title:engine.dict.value(stat.label),
                         subtitle: '${engine.dict.value('example_prefix')}$example',
                         isSelected: _graphStat == stat,
                         scheme: scheme,
@@ -651,6 +651,7 @@ class _ServerEditorPageState extends State<ServerEditorPage> {
                             for (int i = 0; i < _graphOrder!.length; i++)
                               _GraphOrderTile(
                                 key: ValueKey(_graphOrder![i]),
+                                name: engine.dict.value(_graphOrder![i].label),
                                 graph: _graphOrder![i],
                                 index: i,
                               ),
@@ -819,8 +820,9 @@ class _InfoChip extends StatelessWidget {
 class _GraphOrderTile extends StatelessWidget {
   final DetailGraph graph;
   final int index;
+  final String name;
 
-  const _GraphOrderTile({super.key, required this.graph, required this.index});
+  const _GraphOrderTile({super.key, required this.graph, required this.name, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -835,7 +837,7 @@ class _GraphOrderTile extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Text(
-                graph.label,
+                name,
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
             ),

@@ -322,27 +322,35 @@ class _ServerCardState extends State<_ServerCard> {
                             ),
                           ),
                         ] else ...[
-                          Row(
-                            children: [
-                              if (engine.resolveTextStat1(server) != null)
-                                Expanded(child: _StatSlot(
-                                  label: engine.resolveTextStat1(server)!.label,
-                                  value: engine.statString(engine.resolveTextStat1(server)!, telem),
-                                )),
-                              if (engine.resolveTextStat1(server) != null && engine.resolveTextStat2(server) != null)
-                                const SizedBox(width: 12),
-                              if (engine.resolveTextStat2(server) != null)
-                                Expanded(child: _StatSlot(
-                                  label: engine.resolveTextStat2(server)!.label,
-                                  value: engine.statString(engine.resolveTextStat2(server)!, telem),
-                                )),
-                              // If both are null, show ping as fallback
-                              if (engine.resolveTextStat1(server) == null && engine.resolveTextStat2(server) == null)
-                                _StatSlot(
-                                  label: engine.dict.value('ping'),
-                                  value: '${telem.lastPing.toStringAsFixed(0)} ms',
-                                ),
-                            ],
+                          SizedBox(
+                            width: double.infinity,
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              runSpacing: 12,
+                              children: [
+                                if (engine.resolveTextStat1(server) != null)
+                                  _StatSlot(
+                                    label: engine.dict.value(engine.resolveTextStat1(server)!.label),
+                                    value: engine.statString(engine.resolveTextStat1(server)!, telem),
+                                    alignment: CrossAxisAlignment.start,
+                                  ),
+                                if (engine.resolveTextStat2(server) != null)
+                                  _StatSlot(
+                                    label: engine.dict.value(engine.resolveTextStat2(server)!.label),
+                                    value: engine.statString(engine.resolveTextStat2(server)!, telem),
+                                    alignment: engine.resolveTextStat1(server) != null 
+                                        ? CrossAxisAlignment.end 
+                                        : CrossAxisAlignment.start,
+                                  ),
+                                // If both are null, show ping as fallback
+                                if (engine.resolveTextStat1(server) == null && engine.resolveTextStat2(server) == null)
+                                  _StatSlot(
+                                    label: engine.dict.value('ping'),
+                                    value: '${telem.lastPing.toStringAsFixed(0)} ms',
+                                    alignment: CrossAxisAlignment.start,
+                                  ),
+                              ],
+                            ),
                           ),
                         ],
                       ],
@@ -407,12 +415,17 @@ class _ServerCardState extends State<_ServerCard> {
 class _StatSlot extends StatelessWidget {
   final String label;
   final String value;
-  const _StatSlot({required this.label, required this.value});
+  final CrossAxisAlignment alignment;
+  const _StatSlot({
+    required this.label, 
+    required this.value,
+    this.alignment = CrossAxisAlignment.start,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: alignment,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(

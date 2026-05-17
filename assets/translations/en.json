@@ -22,7 +22,7 @@
   "server_manager": "Server Manager",
   "servers_drag_hint": "Drag the handle to reorder. Tap to change or remove.",
   "no_servers_tap": "No servers yet",
-  "no_servers_tap_hint": "Tap + below to add your first server",
+  "no_servers_tap_hint": "Tap here to add server",
   "ping_only_badge": "Ping only",
   "install_aio_hint": "Install AIO.php for full telemetry",
 
@@ -56,6 +56,8 @@
   "card_graph": "Background Graph",
   "card_stat1": "Info Slot 1",
   "card_stat2": "Info Slot 2",
+  "card_stat_1": "Info Slot 1",
+  "card_stat_2": "Info Slot 2",
   "nothing": "Nothing",
   "nothing_subtitle": "Don't show anything in this slot",
   "example_prefix": "Example: ",
@@ -75,6 +77,24 @@
   "stat_net_out": "Net Out",
   "stat_net_combined": "Net Combined",
   "stat_uptime": "Uptime",
+
+
+  "Ping": "Ping",
+  "CPU Load": "CPU Load",
+  "SoC Temp": "SoC Temperature",
+  "SoC Temperature": "SoC Temperature",
+  "RAM Usage": "RAM Usage",
+  "Throughput (In)": "Throughput (In)",
+  "Throughput (Out)": "Throughput (Out)",
+  "RAM %": "RAM %",
+  "RAM Used": "RAM Used",
+  "RAM Used + %": "RAM Used + %",
+  "RAM Used + Total": "RAM Used + Total",
+  "RAM Used + Total + %": "RAM Used + Total + %",
+  "Net In": "Net In",
+  "Net Out": "Net Out",
+  "Net Combined": "Net Combined",
+  "Uptime": "Uptime",
 
   "graph_ping": "Ping",
   "graph_cpu_load": "CPU Load",
@@ -120,9 +140,9 @@
   "sp_section_order_hint": "Drag to reorder and toggle sections to show/hide them on the detail page.",
 
   "no_statuspages": "No Statuspages",
-  "no_statuspages_hint": "Tap below to add your first Statuspage",
+  "no_statuspages_hint": "Tap below to add Statuspage",
   "no_statuspages_tap": "No Statuspages",
-  "no_statuspages_tap_hint": "Tap below to add your first Statuspage",
+  "no_statuspages_tap_hint": "Tap below to add Statuspage",
   "add_statuspage": "Add Statuspage",
   "manage_statuspages": "Manage Statuspages",
   "statuspage_url_label": "Statuspage URL",
@@ -156,7 +176,7 @@
   "sp_last_updated": "Last updated",
   "statuspages_configured": "Statuspage configured",
   "statuspages_configured_plural": "Statuspages configured",
-  
+
   "show_more": "Show more",
   "past_incidents": "Past Incidents",
   "scheduled_maintenances": "Scheduled Maintenances",
