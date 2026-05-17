@@ -1,3 +1,13 @@
+## Update 1.0.6
+#### Changes
+- Card layout in the list is now responsive
+- Card, slot selector and graph stats are now translatable
+- Global stat slots settings are now aligned with per-app slot UI-wise
+- Upated translations
+#### Fixes
+- Fixed Ukrainian translation
+- Fixed UI in the statuspages being inconsistent
+
 ## Update 1.0.4 (Play Store's 1.0.5)
 #### Changes
 - Updated notification channels names and descriptions.
