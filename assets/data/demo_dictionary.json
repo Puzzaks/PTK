@@ -9,6 +9,22 @@
       "link": "https://jira-service-management.status.atlassian.com/"
     },
     {
+      "name": "Customer Service Management",
+      "link": "https://customer-service-management.status.atlassian.com/"
+    },
+    {
+      "name": "Confluence",
+      "link": "https://confluence.status.atlassian.com/"
+    },
+    {
+      "name": "Atlassian",
+      "link": "https://status.atlassian.com/"
+    },
+    {
+      "name": "Atlassian Rovo",
+      "link": "https://rovo.status.atlassian.com/"
+    },
+    {
       "name": "Cloudflare",
       "link": "https://www.cloudflarestatus.com/"
     },
@@ -23,14 +39,6 @@
     {
       "name": "DigitalOcean",
       "link": "https://status.digitalocean.com/"
-    },
-    {
-      "name": "Confluence",
-      "link": "https://confluence.status.atlassian.com/"
-    },
-    {
-      "name": "Atlassian",
-      "link": "https://status.atlassian.com/"
     },
     {
       "name": "Squarespace",
@@ -91,6 +99,10 @@
     {
       "name": "Grafana Cloud",
       "link": "https://status.grafana.com/"
+    },
+    {
+      "name": "Oracle Cloud Identity",
+      "link": "https://ocloudinfra.statuspage.io/"
     }
   ],
   "servers": [
