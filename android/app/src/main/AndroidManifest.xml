@@ -50,5 +50,23 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.puzzak.m3x.mesh.HEADLESS_ENTRYPOINT"
+            android:value="m3xMeshMain" />
     </application>
+
+    <!-- Required for Puzzak Inter-App Agentic Mesh discovery and sibling communication -->
+    <queries>
+        <package android:name="page.puzzak.paios" />
+        <package android:name="page.puzzak.demo" />
+        <package android:name="com.puzzak.the2k48" />
+        <package android:name="com.puzzak.binotool" />
+        <provider android:authorities="page.puzzak.paios.mesh" />
+        <provider android:authorities="page.puzzak.demo.mesh" />
+        <provider android:authorities="com.puzzak.the2k48.mesh" />
+        <provider android:authorities="com.puzzak.binotool.mesh" />
+        <intent>
+            <action android:name="com.puzzak.m3x.mesh.ACTION_MESH_NODE" />
+        </intent>
+    </queries>
 </manifest>

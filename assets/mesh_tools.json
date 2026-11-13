@@ -1,0 +1,127 @@
+[
+  {
+    "name": "ptk_list_statuspages",
+    "app": "ptk",
+    "description": "Lists all configured status pages monitored by PTK with overall health indicators and active incident counts.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "ptk_get_statuspage_details",
+    "app": "ptk",
+    "description": "Returns operational summary, status breakdown, degraded components, and active incidents for a specified StatusPage ID, name, or slug (e.g. \"cloudflare\").",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "statuspage_id": {
+          "type": "string",
+          "description": "StatusPage identifier, name, or partial slug (e.g. \"cloudflare\")."
+        },
+        "include_all_components": {
+          "type": "boolean",
+          "description": "Optional (default false). Set true to include a capped component sample in addition to degraded components."
+        }
+      },
+      "required": ["statuspage_id"]
+    }
+  },
+  {
+    "name": "ptk_list_incidents",
+    "app": "ptk",
+    "description": "Returns paginated incidents with update descriptions truncated to 180 characters. statuspage_id is optional: omit or pass 'all' to check ALL statuspages at once. Never guess placeholder IDs like 'statuspage-1'.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "statuspage_id": {
+          "type": "string",
+          "description": "Optional. Omit or pass 'all' to check ALL statuspages at once. Never guess placeholder IDs like 'statuspage-1'."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "all"],
+          "description": "Filter by status: \"active\" (default) or \"all\"."
+        },
+        "page": {
+          "type": "integer",
+          "description": "Page number (1-based, default 1)."
+        },
+        "offset": {
+          "type": "integer",
+          "description": "Optional 0-based item offset (overrides page if provided)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Max items to return (default 5, max 10)."
+        }
+      }
+    }
+  },
+  {
+    "name": "ptk_get_incident_details",
+    "app": "ptk",
+    "description": "Returns full chronological update timeline and affected components for the specified incident.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "statuspage_id": {
+          "type": "string",
+          "description": "Optional StatusPage ID, name, or slug. Omit or pass \"all\" to search all monitored status pages."
+        },
+        "incident_id": {
+          "type": "string",
+          "description": "Unique identifier of the incident."
+        }
+      },
+      "required": ["incident_id"]
+    }
+  },
+  {
+    "name": "ptk_ping",
+    "app": "ptk",
+    "description": "Runs unprivileged TCP/Socket latency checks to a destination host and port.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Target hostname or IP address."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Target port (default 443)."
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of ping probes (default 3)."
+        }
+      },
+      "required": ["host"]
+    }
+  },
+  {
+    "name": "ptk_list_servers",
+    "app": "ptk",
+    "description": "Lists all monitored server endpoints in PTK with connection status and last ping latency.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "ptk_get_server_telemetry",
+    "app": "ptk",
+    "description": "Returns scalar metrics for a specified server (CPU load/temp, RAM used/total, net throughput, uptime).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "server_id": {
+          "type": "string",
+          "description": "Server identifier, name, or partial hostname."
+        }
+      },
+      "required": ["server_id"]
+    }
+  }
+]

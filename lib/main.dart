@@ -34,6 +34,13 @@ Future<void> main() async {
   ));
 }
 
+@pragma('vm:entry-point')
+Future<void> m3xMeshMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final engine = AppEngine();
+  await engine.startHeadlessForMesh();
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   @override

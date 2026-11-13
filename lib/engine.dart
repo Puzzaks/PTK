@@ -14,6 +14,8 @@ import 'package:ptk/models/status_page.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:ptk/services/background_monitor.dart';
 import 'package:ptk/services/notification_service.dart';
+import 'package:m3x_mesh/m3x_mesh.dart';
+import 'package:ptk/services/mesh_service.dart';
 
 // ─── TelemetryData (kept for chart compatibility) ────────
 class TelemetryData {
@@ -30,6 +32,9 @@ const List<double> kUpdateRateSteps = [
 
 class AppEngine with md.ChangeNotifier {
   late Cards cards;
+
+  late final meshClient = M3xMeshClient(localAppId: 'ptk');
+  late final meshService = PtkMeshService(this);
 
   Dictionary dict = Dictionary(
     path: 'assets/translations',
@@ -209,6 +214,13 @@ class AppEngine with md.ChangeNotifier {
     await _loadServers();
     await _loadStatusPages();
     await _loadSPData();
+
+    // Register PTK mesh tools immediately from cached Hive data so cold/startup
+    // queries respond without waiting on slow network/dictionary setup calls.
+    meshService.registerTools(meshClient);
+    await meshClient.startListening();
+    await meshClient.syncDeclaredTools();
+
     await dict.setup(log: logger.log);
     await spShortener.setup(log: logger.log);
 
@@ -236,6 +248,26 @@ class AppEngine with md.ChangeNotifier {
     await logger.log('init', 'info', 'App started');
     appStarted = true;
     notifyListeners();
+  }
+
+  /// Lightweight headless startup for cold-start M3x Mesh tool queries.
+  /// Loads Hive-persisted server/statuspage state and registers mesh handlers
+  /// without starting UI timers, foreground notifications, or dictionary sync.
+  Future<void> startHeadlessForMesh() async {
+    await Hive.initFlutter();
+    if (!Hive.isBoxOpen('app_storage')) {
+      await Hive.openBox('app_storage');
+    }
+    await logger.initFromHive();
+    await _loadSettings();
+    await _loadSPSettings();
+    await _loadServers();
+    await _loadStatusPages();
+    await _loadSPData();
+    meshService.registerTools(meshClient);
+    await meshClient.startListening();
+    await meshClient.syncDeclaredTools();
+    appStarted = true;
   }
 
   /// Updates the application language and refreshes all localized components.

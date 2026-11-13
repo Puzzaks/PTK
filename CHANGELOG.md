@@ -1,3 +1,31 @@
+## Update 1.1.2 (Token-Budgeted StatusPage Details & Clearer Incident Schema)
+#### Changes
+- Reworked `ptk_get_statuspage_details` in `lib/services/mesh_service.dart` to return a compact `summary`, `status_breakdown`, non-operational `degraded_components` (capped at 25 with `truncated_degraded_components`), and compact `active_incidents`, eliminating Gemini Nano `countTokens` overflows on large pages like Cloudflare (484 components). Added optional `include_all_components` (default `false`, capped at 50) to `mesh_service.dart` and `assets/mesh_tools.json`.
+- Clarified `ptk_list_incidents` and its `statuspage_id` parameter description in both `lib/services/mesh_service.dart` and `assets/mesh_tools.json` to instruct models to omit or pass `'all'` instead of guessing placeholder IDs like `'statuspage-1'`.
+- Bumped `PTK` to `1.1.2+26111302`.
+
+## Update 1.1.1 (Mesh Reliability & Cold-Start Support)
+#### Changes
+- Registered `PtkMeshService` tools, called `meshClient.startListening()`, and synced declared schemas early in `AppEngine.start()` immediately after loading Hive data (before awaiting network/dictionary setup).
+- Added headless cold-start entrypoint `m3xMeshMain()` (`AppEngine.startHeadlessForMesh()`) and `com.puzzak.m3x.mesh.HEADLESS_ENTRYPOINT` manifest metadata so PTK answers mesh queries even when its UI is closed or backgrounded.
+- Updated `ptk_list_incidents` to accept optional `statuspage_id` (aggregating across all status pages for omitted/`"all"`/`"*"`), support `offset`/`limit` pagination (capped at 10), and tag results with `statuspage_id` and `statuspage_name`.
+- Added case-insensitive ID, name, and slug resolution across `ptk_get_statuspage_details`, `ptk_list_incidents`, `ptk_get_incident_details`, and `ptk_get_server_telemetry`, returning compact structured guidance listing valid IDs when not found.
+- Synced `assets/mesh_tools.json` schemas with updated tool definitions.
+
+## Update 1.1.0 (Mesh Integration)
+#### Changes
+- Integrated Puzzak Inter-App Agentic Mesh Protocol (`m3x_mesh`).
+- Initialized `M3xMeshClient` with `localAppId: 'ptk'`.
+- Implemented `PtkMeshService` exporting 7 MCP/OpenAPI tools:
+  - `ptk_list_statuspages`: lists monitored status pages with indicators and active incident counts.
+  - `ptk_get_statuspage_details`: component status breakdown, operational summary, and health metrics.
+  - `ptk_list_incidents`: paginated incidents with truncated update descriptions.
+  - `ptk_get_incident_details`: full chronological timeline and affected components.
+  - `ptk_ping`: TCP/socket latency benchmarks (min/avg/max/packet loss).
+  - `ptk_list_servers`: monitored servers with online state and latency.
+  - `ptk_get_server_telemetry`: scalar telemetry metrics (CPU, RAM, network throughput, uptime).
+- Declared Android package visibility queries and ContentProvider authority (`page.puzzak.ptk.mesh`).
+
 ## Update 1.0.6
 #### Changes
 - Card layout in the list is now responsive
